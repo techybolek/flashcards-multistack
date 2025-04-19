@@ -1,0 +1,1 @@
+Based on the MVP specs and the technical stack prepare a prompt for a PoC generator, that will allow to verify the basic functionality of the application, which is flash cards generation using AI. Exclude all non-essential features. Make sure the generator plans the job and receives my acceptance, before generating the PoC.

@@ -1,0 +1,9 @@
+1. Głównym problemem jest częstochronność tworzenia fiszek oraz dezorientacja początkujących jak robić to "dobrze", czyli jak dzielić informacje na fiszki w optymalny sposób.
+2. Fiszki tworzone przez AI i manualnie (na to również chcemy pozwolić) powinny składać się z pól "przód" i "tył" (fiszki to nic innego stricte pytania i odpowiedzi). Przód fiszki powinien mieć do 200 znaków, tył do 500 znaków. Fiszki będziemy początkowo przechowywać wyłącznie w formacie tekstowym.
+3. W założeniu MVP stawiamy na prostotę a naszym priorytetem jest generowanie fiszek przez AI. Manualne tworzenie fiszek to prosty formularz pozwalający na definiowanie "przód" (front) i "tył" (back).
+4. Na tym etapie MVP pozwalamy jedynie na edycję haseł i usunięcie konta.
+5. Będziemy bazowali na gotoeym algorytmie poprzez wykorzystanie biblioteki open-source.
+6.  Fiszki wygenerowane przez AI są traktowane jako kandydaci na fiszkę. Kandydaci na fiszkę nie są zapisywani w bazie danych, tylko przesyłani użytkownikowi do recenzji. Użytkownik może kandydata na fiszkę zaakceptować, zedytować lub odrzucić. Po wykonaniu recenzji kandydata na fiszki, system pozwala zapisać zaakceptowane fiszki w bazie danych.
+7. Użytkownik powinien mieć dostęp do listy, która pozwala na wyświetlanie zapisanych fiszek, ich edycję za pomocą modala oraz usuwanie fiszek. Lista powinna oferować prostą wyszukiwarkę, paginację. Na etapie MVP nie uwzględniamy filtrowania ani kategoryzacji.
+8. Nie ma wygurowanych wymagań
+9. Nie jest to priorytet w tym momencie.
