@@ -1,0 +1,7 @@
+    curl -X POST http://localhost:3000/api/flashcards \
+         -H "Content-Type: application/json" \
+         -d '{
+               "front": "What is Astro?",
+               "back": "A web framework for building content-driven websites.",
+               "source": "manual"
+             }'
