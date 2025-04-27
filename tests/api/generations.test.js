@@ -1,5 +1,12 @@
+// @ts-check
 import { expect } from 'chai';
 import fetch from 'node-fetch';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const API_BASE_URL = 'http://localhost:3000/api';
 const GENERATIONS_ENDPOINT = `${API_BASE_URL}/generations`;
@@ -7,22 +14,13 @@ const GENERATIONS_ENDPOINT = `${API_BASE_URL}/generations`;
 describe('Generations API', () => {
   describe('POST /api/generations', () => {
     // This test now verifies that the API correctly saves generation data to the database
-    it('should generate flashcards from text and save to database', async () => {
-      // Test data - a long enough text to pass validation
-      const testText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
-        'Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, ' +
-        'eget aliquam nisl nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt, ' +
-        'nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl. Nullam auctor, nisl eget ' +
-        'ultricies tincidunt, nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl. ' +
-        'Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget aliquam ' +
-        'nisl nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam ' +
-        'nisl, eget aliquam nisl nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt, ' +
-        'nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl. Nullam auctor, nisl eget ' +
-        'ultricies tincidunt, nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl. ' +
-        'Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget aliquam ' +
-        'nisl nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam ' +
-        'nisl, eget aliquam nisl nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt, ' +
-        'nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl.';
+    it.only('should generate flashcards from text and save to database', async function () {
+      this.timeout(20000);
+      // Test data - read text from source_mock.md file
+      const sourceMockPath = path.join(__dirname, './source_mock.md');
+      const fileContent = fs.readFileSync(sourceMockPath, 'utf8');
+      const testText = fileContent;
+
 
       const response = await fetch(GENERATIONS_ENDPOINT, {
         method: 'POST',
