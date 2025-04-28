@@ -92,5 +92,3 @@ An environment of entangled qubits placed into a state of collective superpositi
 
 How the principles work together
 To better understand quantum computing, consider that two counterintuitive ideas can both be true. The first is that objects that can be measured—qubits in superposition with defined probability amplitudes—behave randomly. The second is that objects too distant to influence each other—entangled qubits—can still behave in ways that, though individually random, are somehow strongly correlated.
-
-A computation on a quantum computer works by preparing a superposition of computational states. A quantum circuit, prepared by the user, uses operations to generate entanglement, leading to interference between these different states, as governed by an algorithm. Many possible outcomes are canceled out through interference, while others are amplified. The amplified outcomes are the solutions to the computation.

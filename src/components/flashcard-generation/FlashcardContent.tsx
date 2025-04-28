@@ -14,7 +14,7 @@ export default function FlashcardContent({ front, back }: FlashcardContentProps)
 
   return (
     <div 
-      className="relative h-48 cursor-pointer perspective-1000"
+      className="relative h-48 cursor-pointer [perspective:1000px]"
       onClick={handleFlip}
       role="button"
       tabIndex={0}
@@ -26,17 +26,17 @@ export default function FlashcardContent({ front, back }: FlashcardContentProps)
       aria-label={isFlipped ? 'Show front of flashcard' : 'Show back of flashcard'}
     >
       <div 
-        className={`absolute w-full h-full transition-transform duration-500 transform-style-3d ${
-          isFlipped ? 'rotate-y-180' : ''
+        className={`absolute w-full h-full transition-transform duration-500 [transform-style:preserve-3d] ${
+          isFlipped ? '[transform:rotateY(180deg)]' : ''
         }`}
       >
         {/* Front of card */}
-        <div className="absolute w-full h-full backface-hidden bg-white border border-gray-200 rounded-md p-4 flex items-center justify-center text-center">
+        <div className="absolute w-full h-full [backface-visibility:hidden] bg-white border border-gray-200 rounded-md p-4 flex items-center justify-center text-center">
           <div className="text-lg font-medium">{front}</div>
         </div>
         
         {/* Back of card */}
-        <div className="absolute w-full h-full backface-hidden bg-gray-50 border border-gray-200 rounded-md p-4 flex items-center justify-center text-center rotate-y-180">
+        <div className="absolute w-full h-full [backface-visibility:hidden] bg-gray-50 border border-gray-200 rounded-md p-4 flex items-center justify-center text-center [transform:rotateY(180deg)]">
           <div className="text-lg">{back}</div>
         </div>
       </div>
