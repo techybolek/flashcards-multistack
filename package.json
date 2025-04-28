@@ -12,7 +12,8 @@
     "format": "prettier --write .",
     "test": "mocha tests/**/*.test.js",
     "test:watch": "nodemon --watch tests --ext js --exec 'npm test'",
-    "cleandb": "vite-node src/scripts/cleandb.mts"
+    "cleandb": "vite-node src/scripts/cleandb.mts",
+    "test:openrouter": "vite-node src/scripts/test-openrouter.ts"
   },
   "dependencies": {
     "@astrojs/node": "^9.1.3",
@@ -22,9 +23,11 @@
     "@radix-ui/react-avatar": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.0",
     "@supabase/supabase-js": "^2.49.4",
+    "@types/axios": "^0.9.36",
     "@types/react": "19.0.12",
     "@types/react-dom": "19.0.4",
     "astro": "5.5.5",
+    "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",

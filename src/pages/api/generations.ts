@@ -3,7 +3,7 @@ import { z } from 'zod';
 import type { GenerateFlashcardsCommand, GenerationResultDTO } from '../../types';
 import { DEFAULT_USER_ID, supabaseClient } from '../../db/supabase.client';
 import { createHash } from 'crypto';
-import fetch from 'node-fetch';
+import { OpenRouterService } from '../../lib/openrouter';
 
 export const prerender = false;
 
@@ -11,49 +11,44 @@ const commandSchema = z.object({
   text: z.string().min(1000, { message: "Tekst jest za krótki" }).max(10000, { message: "Tekst jest za długi" })
 });
 
-// Function to call the OpenAI API
-const callOpenAIAPI = async (text: string) => {
-  const apiKey = import.meta.env.OPENAI_API_KEY;
-  
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY is not defined in environment variables');
-  }
-  
+// Initialize OpenRouter service
+const openRouterService = new OpenRouterService({
+  apiKey: import.meta.env.OPENROUTER_API_KEY || '',
+  defaultModel: 'gpt-4o-mini',
+  maxRetries: 3,
+  timeout: 60000,
+  cacheEnabled: true
+});
+
+// Function to call the OpenRouter API
+const callOpenRouterAPI = async (text: string) => {
   const startTime = Date.now();
   
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a helpful assistant that generates flashcards from text. Create 5-10 high-quality flashcards with a question on the front and an answer on the back. Each flashcard should cover a key concept from the text. Format your response as a JSON array with objects containing "front" and "back" properties.'
-          },
-          {
-            role: 'user',
-            content: `Generate flashcards from the following text:\n\n${text}`
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 2000
-      })
+    // Format system message
+    const systemMessage = openRouterService.formatSystemMessage({
+      systemPrompt: 'You are a helpful assistant that generates flashcards from text. Create 5-10 high-quality flashcards with a question on the front and an answer on the back. Each flashcard should cover a key concept from the text. Format your response as a JSON array with objects containing "front" and "back" properties.',
+      temperature: 0.7,
+      maxTokens: 2000
     });
     
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`API request failed with status ${response.status}: ${JSON.stringify(errorData)}`);
-    }
-    
-    const data = await response.json();
+    // Call the OpenRouter service
+    const response = await openRouterService.chat([
+      {
+        role: 'system',
+        content: systemMessage
+      },
+      {
+        role: 'user',
+        content: `Generate flashcards from the following text:\n\n${text}`
+      }
+    ], {
+      temperature: 0.7,
+      max_tokens: 2000
+    });
     
     // Extract the content from the API response
-    const content = data.choices[0]?.message?.content || '';
+    const content = response.content;
     
     // Parse the JSON content
     let flashcardProposals;
@@ -105,7 +100,7 @@ const callOpenAIAPI = async (text: string) => {
       }
     };
   } catch (error) {
-    console.error('Error calling OpenAI API:', error);
+    console.error('Error calling OpenRouter API:', error);
     throw error;
   }
 };
@@ -113,7 +108,7 @@ const callOpenAIAPI = async (text: string) => {
 // Function to generate flashcards using AI
 const generateFlashcards = async (text: string) => {
   try {
-    return await callOpenAIAPI(text);
+    return await callOpenRouterAPI(text);
   } catch (error) {
     console.error('Error in generateFlashcards:', error);
     throw error;
@@ -162,7 +157,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .from('generations')
       .insert({
         user_id: userId,
-        model: 'gpt-4o',
+        model: 'deepseek-reasoner',
         source_text_hash: sourceTextHash,
         source_text_length: body.text.length,
         generated_count: aiResponse.stats.generated_count,
@@ -202,17 +197,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
         .from('generation_error_logs')
         .insert({
           user_id: userId,
-          model: 'gpt-4o',
+          model: 'deepseek-reasoner',
           source_text_hash: calculateTextHash(body.text),
           source_text_length: body.text.length,
           error_code: 'GENERATION_ERROR',
-          error_message: error instanceof Error ? error.message : 'Unknown error'
+          error_message: error instanceof Error ? error.message : String(error)
         });
     } catch (logError) {
       console.error('Error logging generation error:', logError);
     }
     
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    return new Response(JSON.stringify({ error: 'Wystąpił błąd podczas generowania fiszek' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
