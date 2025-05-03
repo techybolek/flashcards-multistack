@@ -24,7 +24,7 @@
   - `register.ts` – obsługa rejestracji użytkowników.
   - `login.ts` – obsługa logowania.
   - `recover.ts` – obsługa procesu odzyskiwania hasła.
-  - Opcjonalnie `logout.ts` – wylogowywanie użytkowników.
+  - `logout.ts` – wylogowywanie użytkowników.
 - Każdy endpoint będzie implementował kontrakty danych zgodne z typami zdefiniowanymi w `/src/types.ts`.
 
 ### Mechanizm Walidacji Danych Wejściowych
@@ -44,7 +44,9 @@
 
 ### Kanały Komunikacji i Kontrakty
 - Dokładnie zdefiniowane kontrakty danych dla operacji rejestracji (email, password) oraz logowania, co gwarantuje spójność między klientem a serwerem.
-- Po udanej operacji uwierzytelniania, mechanizmy callbacków/hooków (np. kontekst React) aktualizują stan sesji użytkownika w aplikacji.
+- Po udanej operacji uwierzytelnienia, mechanizmy callbacków/hooków (np. kontekst React) aktualizują stan sesji użytkownika w aplikacji.
+- Po udanej rejestracji, system automatycznie inicjuje nową sesję użytkownika zgodnie z wymaganiami US-001.
+- Po udanym logowaniu, komponenty odpowiedzialne za autoryzację przekierowują użytkownika do widoku generowania fiszek zgodnie z wymaganiami US-002.
 
 ### Obsługa Wyjątków i Bezpieczeństwo
 - Standardowe procedury obsługi wyjątków zapewnią logowanie błędów oraz przekazywanie czytelnych komunikatów użytkownikowi.
