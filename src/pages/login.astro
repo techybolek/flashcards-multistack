@@ -1,6 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { LoginForm } from '@/components/auth/LoginForm';
+import { Toaster } from '@/components/ui/toaster';
 ---
 
 <Layout title="Sign in - 10x Cards" isAuthPage>
@@ -10,4 +11,5 @@ import { LoginForm } from '@/components/auth/LoginForm';
   </Fragment>
   
   <LoginForm client:load />
+  <Toaster client:load />
 </Layout> 
