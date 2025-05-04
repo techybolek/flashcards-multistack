@@ -2,12 +2,12 @@ You are an experienced QA engineer tasked with creating a comprehensive test pla
 
 Here is the project's codebase:
 <codebase>
-{{Codebase}}
+@codebase
 </codebase>
 
 The project uses the following technical stack:
 <tech_stack>
-{{TechStack}}
+@tech-stack.md
 </tech_stack>
 
 Before creating the test plan, please analyze the provided information and consider the best approach. Wrap this work in <test_plan_preparation> tags inside your thinking block:

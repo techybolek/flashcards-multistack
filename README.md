@@ -37,17 +37,48 @@ npm run dev
 
 ## Testing
 
+The project uses a comprehensive testing strategy with multiple layers:
+
+### Unit Testing
 ```bash
-# Run tests
+# Run unit tests
+npm run test:unit
+```
+
+Uses Vitest with React Testing Library for:
+- Component testing
+- Hook testing
+- Utility function testing
+- API route validation testing
+
+### End-to-End Testing
+```bash
+# Run E2E tests
+npm run test:e2e
+```
+
+Uses Playwright for:
+- Critical user flow testing
+- Cross-browser testing (Chrome, Firefox, Safari, Edge)
+- API integration testing
+
+### API Testing
+```bash
+# Run API tests
+npm run test:api
+```
+
+Uses Mocha/Chai for:
+- REST endpoint testing
+- Database integration testing
+- Authentication flow testing
+
+### Running All Tests
+```bash
+# Run all tests
 npm test
 ```
 
 ## Building for Production
 
-```bash
-# Build the application
-npm run build
-
-# Preview the production build
-npm run preview
-``` 
+```
