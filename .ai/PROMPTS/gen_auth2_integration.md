@@ -1,7 +1,5 @@
-Przeprowadź integrację @login.astro @LoginForm.tsx  z backendem Astro na podstawie specyfikacji @auth-spec.md. Rozpocznij od analizy istniejącego kodu w kontekście najlepszych praktyk @astro.mdc i @react.mdc 
+Wykorzystując @supabase-auth.mdc zaimplementuj backend pod stronę @register.astro component and @ResisterForm.tsx 
 
-Przedstawiony plan powinien spełniać założenia wyszczególnione w sekcji user stories: @project-prd.md
+Logika powinna być spójna z @login.astro oraz @LoginForm.tsx 
 
-Wykorzystaj @supabase-auth.mdc do uzyskania poprawnej integracji procesu logowania z Supabase Auth.
-
-Zanim rozpoczniemy, zadaj mi 5 kluczowych pytań technicznych adresujących niejasne elementy integracji, które pomogą ci przeprowadzić całą implementację od początku do końca.
+Weź pod uwagę zachowanie supabase - po rejestracji zostanie wysłany link do potwierdzenia konta przez użytkownika - poinformuj o tym.
