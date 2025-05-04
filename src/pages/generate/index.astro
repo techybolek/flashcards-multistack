@@ -1,11 +1,25 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import FlashcardGenerationView from '../../components/flashcard-generation/FlashcardGenerationView';
+import UserInfo from '../../components/UserInfo';
+
+// Get the session from supabase
+const { data: { session }, error } = await Astro.locals.supabase.auth.getSession();
+
+// If no session, redirect to login
+if (!session) {
+  return Astro.redirect('/auth/login');
+}
+
+const user = session.user;
 ---
 
 <Layout title="Generate Flashcards">
   <main class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">Generate Flashcards</h1>
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold">Generate Flashcards</h1>
+      <UserInfo client:load user={user} />
+    </div>
     <FlashcardGenerationView client:load />
   </main>
 </Layout> 

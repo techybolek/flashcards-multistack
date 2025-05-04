@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { supabase } from '@/lib/supabase';
+import { createServerSupabaseClient } from '@/lib/supabase';
 import { z } from 'zod';
 
 const registerSchema = z.object({
@@ -11,12 +11,15 @@ const registerSchema = z.object({
   path: ["confirmPassword"],
 });
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const body = await request.json();
     const { email, password } = registerSchema.parse(body);
 
     console.log('Starting registration for:', email);
+
+    // Create server client with cookie support
+    const supabase = createServerSupabaseClient(cookies);
 
     const { data, error } = await supabase.auth.signUp({
       email,

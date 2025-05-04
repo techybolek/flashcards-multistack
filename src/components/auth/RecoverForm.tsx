@@ -25,7 +25,7 @@ export function RecoverForm() {
       </div>
 
       <div className="text-center">
-        <a href="/login" className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400">
+        <a href="/auth/login" className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400">
           Remember your password?
         </a>
       </div>

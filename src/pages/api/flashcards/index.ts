@@ -1,12 +1,24 @@
 import type { APIRoute } from 'astro';
-import { supabaseClient, DEFAULT_USER_ID } from '../../../db/supabase.client';
-import type { TablesInsert } from '../../../db/database.types';
+import { createServerSupabaseClient } from '@/lib/supabase';
+import type { TablesInsert } from '@/db/database.types';
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ locals, cookies }) => {
   try {
-    const { data: flashcards, error: dbError } = await supabaseClient
+    // Create server client with cookie support
+    const supabase = createServerSupabaseClient(cookies);
+
+    // Check authentication
+    if (!locals.user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const { data: flashcards, error: dbError } = await supabase
       .from('flashcards')
-      .select('*');
+      .select('*')
+      .eq('user_id', locals.user.id);
 
     if (dbError) {
       console.error(dbError);
@@ -29,8 +41,19 @@ export const GET: APIRoute = async () => {
   }
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals, cookies }) => {
   try {
+    // Create server client with cookie support
+    const supabase = createServerSupabaseClient(cookies);
+
+    // Check authentication
+    if (!locals.user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     const body = await request.json();
     const { front, back, source, generation_id } = body;
 
@@ -47,12 +70,12 @@ export const POST: APIRoute = async ({ request }) => {
       front,
       back,
       source,
-      user_id: DEFAULT_USER_ID, // Using default user ID for now
+      user_id: locals.user.id,
       generation_id: generation_id !== undefined ? Number(generation_id) : null
     };
 
     // Insert into database
-    const { data: newFlashcard, error: dbError } = await supabaseClient
+    const { data: newFlashcard, error: dbError } = await supabase
       .from('flashcards')
       .insert(flashcardToInsert)
       .select()

@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import type { GenerateFlashcardsCommand, GenerationResultDTO } from '../../types';
-import { DEFAULT_USER_ID, supabaseClient } from '../../db/supabase.client';
+import { createServerSupabaseClient } from '@/lib/supabase';
 import { createHash } from 'crypto';
 import { OpenRouterService } from '../../lib/openrouter';
 
@@ -120,9 +120,17 @@ const calculateTextHash = (text: string): string => {
   return createHash('sha256').update(text).digest('hex');
 };
 
-export const POST: APIRoute = async ({ request, locals }) => {
-  // Use a default user id as authentication is not handled at this stage
-  const userId = DEFAULT_USER_ID;
+export const POST: APIRoute = async ({ request, locals, cookies }) => {
+  // Create server client with cookie support
+  const supabase = createServerSupabaseClient(cookies);
+
+  // Check authentication
+  if (!locals.user) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
 
   // Parse request body
   let body: GenerateFlashcardsCommand;
@@ -152,11 +160,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const aiResponse = await generateFlashcards(body.text);
     
     // Save generation record to database
-    console.log('inserting with userId', userId);
-    const { data: generationData, error: generationError } = await supabaseClient
+    const { data: generationData, error: generationError } = await supabase
       .from('generations')
       .insert({
-        user_id: userId,
+        user_id: locals.user.id,
         model: 'deepseek-reasoner',
         source_text_hash: sourceTextHash,
         source_text_length: body.text.length,
@@ -193,10 +200,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     
     // Log error to generation_error_logs table
     try {
-      await supabaseClient
+      await supabase
         .from('generation_error_logs')
         .insert({
-          user_id: userId,
+          user_id: locals.user.id,
           model: 'deepseek-reasoner',
           source_text_hash: calculateTextHash(body.text),
           source_text_length: body.text.length,

@@ -136,7 +136,7 @@ export function RegisterForm() {
       </div>
 
       <div className="text-center">
-        <a href="/login" className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400">
+        <a href="/auth/login" className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400">
           Already have an account?
         </a>
       </div>

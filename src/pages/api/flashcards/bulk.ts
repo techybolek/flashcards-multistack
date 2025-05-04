@@ -1,8 +1,19 @@
 import type { APIRoute } from 'astro';
-import { supabaseClient, DEFAULT_USER_ID } from '../../../db/supabase.client';
+import { createServerSupabaseClient } from '@/lib/supabase';
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals, cookies }) => {
   try {
+    // Create server client with cookie support
+    const supabase = createServerSupabaseClient(cookies);
+
+    // Check authentication
+    if (!locals.user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     const body = await request.json();
 
     if (!Array.isArray(body)) {
@@ -22,13 +33,13 @@ export const POST: APIRoute = async ({ request }) => {
       }
     }
 
-    //add default user_id
+    // Add user_id to each flashcard
     body.forEach(flashcard => {
-      flashcard.user_id = DEFAULT_USER_ID;
+      flashcard.user_id = locals.user.id;
     });
 
     // Insert bulk flashcards into database
-    const response = await supabaseClient
+    const response = await supabase
       .from('flashcards')
       .insert(body);
 

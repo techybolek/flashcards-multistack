@@ -33,6 +33,7 @@ export function LoginForm() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
+        credentials: 'include', // Important: This ensures cookies are sent with the request
       });
 
       const data: ApiResponse = await response.json();
@@ -53,8 +54,10 @@ export function LoginForm() {
         description: "Login successful! Redirecting...",
       });
 
-      // Redirect to generate page
-      window.location.href = data.redirectTo || '/generate';
+      // Redirect to generate page after a short delay to allow the toast to be seen
+      setTimeout(() => {
+        window.location.href = data.redirectTo || '/generate';
+      }, 1000);
     } catch (error) {
       toast({
         variant: "destructive",
@@ -103,10 +106,10 @@ export function LoginForm() {
       </div>
 
       <div className="flex items-center justify-between">
-        <a href="/recover" className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400">
+        <a href="/auth/recover" className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400">
           Forgot your password?
         </a>
-        <a href="/register" className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400">
+        <a href="/auth/register" className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400">
           Don't have an account?
         </a>
       </div>
