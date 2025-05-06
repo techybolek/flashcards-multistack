@@ -81,4 +81,15 @@ export type GenerationResultDTO = {
 // Command model for generating flashcards from a block of text. Expects text between 1000 and 10000 characters.
 export type GenerateFlashcardsCommand = {
   text: string;
+};
+
+export interface Generation {
+  id: string;
+  userId: string;
+  createdAt: string;
+  // Add other relevant fields later as needed
+}
+
+export type GenerationResponse = {
+  generations: Generation[];
 }; 

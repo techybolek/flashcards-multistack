@@ -68,6 +68,7 @@ export const GET: APIRoute = async ({ params, locals, cookies }) => {
 };
 
 export const PUT: APIRoute = async ({ params, request, locals, cookies }) => {
+  console.log('PUT request received', params);
   try {
     const { id } = params;
     if (!id) {
@@ -221,6 +222,83 @@ export const DELETE: APIRoute = async ({ params, locals, cookies }) => {
     });
   } catch (error) {
     console.error(error);
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+};
+
+export const PATCH: APIRoute = async ({ params, request, locals, cookies }) => {
+  try {
+    // Create server client with cookie support
+    const supabase = createServerSupabaseClient(cookies);
+
+    // Check authentication
+    if (!locals.user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const { id } = params;
+    const { front, back } = await request.json();
+
+    // Validate input
+    if (!front || !back) {
+      return new Response(JSON.stringify({ error: 'Front and back are required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Verify user owns this flashcard by checking the generation
+    const { data: flashcard, error: flashcardError } = await supabase
+      .from('flashcards')
+      .select('generation_id')
+      .eq('id', id)
+      .single();
+
+    if (flashcardError || !flashcard) {
+      return new Response(JSON.stringify({ error: 'Flashcard not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Verify user owns the generation
+    const { data: generation, error: generationError } = await supabase
+      .from('generations')
+      .select('user_id')
+      .eq('id', flashcard.generation_id)
+      .single();
+
+    if (generationError || !generation || generation.user_id !== locals.user.id) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Update the flashcard
+    const { error: updateError } = await supabase
+      .from('flashcards')
+      .update({ front, back })
+      .eq('id', id);
+
+    if (updateError) {
+      return new Response(JSON.stringify({ error: 'Failed to update flashcard' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }

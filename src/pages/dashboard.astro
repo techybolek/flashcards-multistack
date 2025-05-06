@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { GenerationsList } from '../components/GenerationsList';
+---
+
+<Layout title="Dashboard - Your Generations">
+  <main class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold mb-8">Your Generations</h1>
+    <GenerationsList client:load />
+  </main>
+</Layout> 

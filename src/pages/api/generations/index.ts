@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
-import type { GenerateFlashcardsCommand, GenerationResultDTO } from '../../types';
+import type { GenerateFlashcardsCommand, GenerationResultDTO } from '../../../types';
 import { createServerSupabaseClient } from '@/lib/supabase';
 import { createHash } from 'crypto';
-import { OpenRouterService } from '../../lib/openrouter';
+import { OpenRouterService } from '../../../lib/openrouter';
 
 export const prerender = false;
 
@@ -215,6 +215,52 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
     }
     
     return new Response(JSON.stringify({ error: 'Wystąpił błąd podczas generowania fiszek' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+};
+
+export const GET: APIRoute = async ({ locals, cookies }) => {
+  try {
+    // Create server client with cookie support
+    const supabase = createServerSupabaseClient(cookies);
+
+    // Check authentication
+    if (!locals.user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Get all generations for the current user
+    const { data: generations, error: generationsError } = await supabase
+      .from('generations')
+      .select('id, created_at, generated_count')
+      .eq('user_id', locals.user.id)
+      .order('created_at', { ascending: false });
+
+    if (generationsError) {
+      console.error('Database error:', generationsError);
+      return new Response(JSON.stringify({ error: 'Failed to load generations' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Log the raw data from database
+    console.log('API - Raw generations data:', JSON.stringify(generations, null, 2));
+    console.log('API - First generation created_at type:', generations?.[0]?.created_at ? typeof generations[0].created_at : 'no data');
+    console.log('API - First generation created_at value:', generations?.[0]?.created_at);
+
+    return new Response(JSON.stringify({ generations }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('API error:', error);
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
