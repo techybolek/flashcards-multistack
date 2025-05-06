@@ -1,5 +1,6 @@
 ---
 import { ViewTransitions } from 'astro:transitions';
+import UserInfo from '../components/UserInfo';
 
 interface Props {
 	title: string;
@@ -7,6 +8,13 @@ interface Props {
 }
 
 const { title, isAuthPage = false } = Astro.props;
+
+// Get user session if not an auth page
+let user;
+if (!isAuthPage) {
+	const { data: { session } } = await Astro.locals.supabase.auth.getSession();
+	user = session?.user;
+}
 ---
 
 <!doctype html>
@@ -36,7 +44,16 @@ const { title, isAuthPage = false } = Astro.props;
 				</div>
 			</main>
 		) : (
-			<slot />
+			<>
+				{user && (
+					<div class="container mx-auto px-4 py-4">
+						<div class="flex justify-end">
+							<UserInfo client:load user={user} />
+						</div>
+					</div>
+				)}
+				<slot />
+			</>
 		)}
 	</body>
 </html>

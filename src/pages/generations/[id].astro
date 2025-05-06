@@ -1,7 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import FlashcardEditView from '../../components/flashcard-edit/FlashcardEditView';
-import UserInfo from '../../components/UserInfo';
 
 // Get the session from supabase
 const { data: { session }, error } = await Astro.locals.supabase.auth.getSession();
@@ -11,7 +10,6 @@ if (!session) {
   return Astro.redirect('/auth/login');
 }
 
-const user = session.user;
 const { id } = Astro.params;
 
 // If no id parameter, redirect to dashboard
@@ -31,7 +29,6 @@ if (!id) {
         </a>
         <h1 class="text-3xl font-bold">Edit Flashcards</h1>
       </div>
-      <UserInfo client:load user={user} />
     </div>
     <FlashcardEditView client:load generationId={id} />
   </main>

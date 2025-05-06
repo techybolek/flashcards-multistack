@@ -1,7 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import FlashcardGenerationView from '../../components/flashcard-generation/FlashcardGenerationView';
-import UserInfo from '../../components/UserInfo';
 
 // Get the session from supabase
 const { data: { session }, error } = await Astro.locals.supabase.auth.getSession();
@@ -10,8 +9,6 @@ const { data: { session }, error } = await Astro.locals.supabase.auth.getSession
 if (!session) {
   return Astro.redirect('/auth/login');
 }
-
-const user = session.user;
 ---
 
 <Layout title="Generate Flashcards">
@@ -26,10 +23,7 @@ const user = session.user;
         </svg>
         Back to Dashboard
       </a>
-      <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-bold">Generate Flashcards</h1>
-        <UserInfo client:load user={user} />
-      </div>
+      <h1 class="text-3xl font-bold">Generate Flashcards</h1>
     </div>
     <FlashcardGenerationView client:load />
   </main>
