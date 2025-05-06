@@ -118,6 +118,7 @@ export type Database = {
           created_at: string
           generated_count: number
           generation_duration: unknown
+          generation_name: string
           id: number
           model: string
           source_text_hash: string
@@ -131,6 +132,7 @@ export type Database = {
           created_at?: string
           generated_count?: number
           generation_duration: unknown
+          generation_name?: string
           id?: number
           model: string
           source_text_hash: string
@@ -144,6 +146,7 @@ export type Database = {
           created_at?: string
           generated_count?: number
           generation_duration?: unknown
+          generation_name?: string
           id?: number
           model?: string
           source_text_hash?: string

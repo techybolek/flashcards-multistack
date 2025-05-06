@@ -54,9 +54,9 @@ export function LoginForm() {
         description: "Login successful! Redirecting...",
       });
 
-      // Redirect to generate page after a short delay to allow the toast to be seen
+      // Redirect to dashboard page after a short delay to allow the toast to be seen
       setTimeout(() => {
-        window.location.href = data.redirectTo || '/generate';
+        window.location.href = data.redirectTo || '/dashboard';
       }, 1000);
     } catch (error) {
       toast({

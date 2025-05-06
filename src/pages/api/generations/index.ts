@@ -170,7 +170,8 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
         generated_count: aiResponse.stats.generated_count,
         generation_duration: aiResponse.stats.generation_duration,
         accepted_unedited_count: 0,
-        accepted_edited_count: 0
+        accepted_edited_count: 0,
+        generation_name: 'BOBO'
       })
       .select()
       .single();
@@ -237,7 +238,7 @@ export const GET: APIRoute = async ({ locals, cookies }) => {
     // Get all generations for the current user
     const { data: generations, error: generationsError } = await supabase
       .from('generations')
-      .select('id, created_at, generated_count')
+      .select('id, created_at, generated_count, generation_name')
       .eq('user_id', locals.user.id)
       .order('created_at', { ascending: false });
 
