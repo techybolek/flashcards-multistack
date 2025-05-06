@@ -29,6 +29,7 @@ export function useFlashcardGeneration() {
   // State for stats and generation ID
   const [stats, setStats] = useState<GenerationStatsDTO | null>(null);
   const [generationId, setGenerationId] = useState<number | null>(null);
+  const [generationName, setGenerationName] = useState<string | null>(null);
 
   // Validate text
   const validateText = useCallback((text: string) => {
@@ -81,6 +82,7 @@ export function useFlashcardGeneration() {
       setProposals(result.flashcardProposals);
       setStats(result.stats);
       setGenerationId(result.generation_id);
+      setGenerationName(result.generation_name);
       
       // Initialize statuses for all proposals
       const initialStatuses: Record<number, ProposalStatus> = {};
@@ -266,6 +268,7 @@ export function useFlashcardGeneration() {
     // Stats and generation ID
     stats,
     generationId,
+    generationName,
     
     // Handlers
     handleGenerate,

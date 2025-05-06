@@ -30,6 +30,7 @@ export default function FlashcardGenerationView() {
     proposalStatuses,
     stats,
     generationId,
+    generationName,
     handleGenerate,
     handleAccept,
     handleEdit,
@@ -72,6 +73,12 @@ export default function FlashcardGenerationView() {
       
       {proposals.length > 0 && (
         <>
+          {generationName && (
+            <div className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+              {generationName}
+            </div>
+          )}
+          
           <FlashcardProposalsList 
             proposals={proposals}
             proposalStatuses={proposalStatuses}

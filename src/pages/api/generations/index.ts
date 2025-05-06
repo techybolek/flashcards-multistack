@@ -20,8 +20,8 @@ const openRouterService = new OpenRouterService({
   cacheEnabled: true
 });
 
-// Function to call the OpenRouter API
-const callOpenRouterAPI = async (text: string) => {
+// Function to generate flashcards using OpenRouter API
+const generateFlashcardsFromText = async (text: string) => {
   const startTime = Date.now();
   
   try {
@@ -100,15 +100,57 @@ const callOpenRouterAPI = async (text: string) => {
       }
     };
   } catch (error) {
-    console.error('Error calling OpenRouter API:', error);
+    console.error('Error generating flashcards:', error);
     throw error;
+  }
+};
+
+// Function to generate a title for the flashcard set
+const generateTitleForText = async (text: string): Promise<string> => {
+  try {
+    const systemMessage = openRouterService.formatSystemMessage({
+      systemPrompt: 'Generate a short, descriptive title (maximum 40 characters) that captures the main topic or theme of the text. The title should help users quickly identify what this set of flashcards is about. Respond with just the title, no additional text or formatting.',
+      temperature: 0.7,
+      maxTokens: 100
+    });
+
+    const response = await openRouterService.chat([
+      {
+        role: 'system',
+        content: systemMessage
+      },
+      {
+        role: 'user',
+        content: `Generate a title for flashcards based on this text:\n\n${text}`
+      }
+    ], {
+      temperature: 0.7,
+      max_tokens: 100
+    });
+
+    // Extract and clean the title
+    let title = response.content.trim();
+    
+    // Remove any quotes if present
+    title = title.replace(/^["']|["']$/g, '');
+    
+    // Ensure the title doesn't exceed 40 characters
+    if (title.length > 40) {
+      title = title.substring(0, 37) + '...';
+    }
+
+    return title;
+  } catch (error) {
+    console.error('Error generating title:', error);
+    // Return a fallback title if generation fails
+    return 'Generated Flashcards';
   }
 };
 
 // Function to generate flashcards using AI
 const generateFlashcards = async (text: string) => {
   try {
-    return await callOpenRouterAPI(text);
+    return await generateFlashcardsFromText(text);
   } catch (error) {
     console.error('Error in generateFlashcards:', error);
     throw error;
@@ -159,6 +201,9 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
     // Generate flashcards using AI
     const aiResponse = await generateFlashcards(body.text);
     
+    // Generate a title for this set of flashcards
+    const generationName = await generateTitleForText(body.text);
+    
     // Save generation record to database
     const { data: generationData, error: generationError } = await supabase
       .from('generations')
@@ -171,7 +216,7 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
         generation_duration: aiResponse.stats.generation_duration,
         accepted_unedited_count: 0,
         accepted_edited_count: 0,
-        generation_name: 'BOBO'
+        generation_name: generationName
       })
       .select()
       .single();
@@ -188,6 +233,7 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
 
     const generationResult: GenerationResultDTO = {
       generation_id,
+      generation_name: generationName,
       flashcardProposals: aiResponse.flashcardProposals,
       stats: aiResponse.stats
     };

@@ -74,6 +74,7 @@ export type GenerationStatsDTO = {
 // DTO for the result of flashcard generation, including proposals and generation statistics.
 export type GenerationResultDTO = {
   generation_id: number;
+  generation_name: string;
   flashcardProposals: FlashcardProposalDTO[];
   stats: GenerationStatsDTO;
 };
