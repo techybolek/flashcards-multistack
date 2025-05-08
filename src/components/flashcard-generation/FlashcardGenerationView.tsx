@@ -55,34 +55,6 @@ export default function FlashcardGenerationView() {
     setNotifications(prev => prev.filter(notification => notification.id !== id));
   };
 
-  // Handle saving accepted flashcards with redirection
-  const handleSaveAcceptedWithRedirect = async () => {
-    const success = await handleSaveAccepted();
-    if (success) {
-      addNotification('success', 'Successfully saved accepted flashcards!', 3000);
-      // Short delay to allow the notification to be seen
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 1000);
-    } else {
-      addNotification('error', 'Failed to save flashcards. Please try again.', 5000);
-    }
-  };
-
-  // Handle saving all flashcards with redirection
-  const handleSaveAllWithRedirect = async () => {
-    const success = await handleSaveAll();
-    if (success) {
-      addNotification('success', 'Successfully saved all flashcards!', 3000);
-      // Short delay to allow the notification to be seen
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 1000);
-    } else {
-      addNotification('error', 'Failed to save flashcards. Please try again.', 5000);
-    }
-  };
-
   return (
     <div className="flex flex-col gap-6">
       <TextInputForm 
