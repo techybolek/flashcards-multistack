@@ -83,6 +83,12 @@ export default function FlashcardProposalItem({
     }
   };
 
+  // Get the content to display based on status
+  const displayContent = {
+    front: status === 'edited' ? editedFront : proposal.front,
+    back: status === 'edited' ? editedBack : proposal.back
+  };
+
   return (
     <div className={`border rounded-lg p-4 ${getStatusColor()}`}>
       {isEditing ? (
@@ -98,7 +104,7 @@ export default function FlashcardProposalItem({
         />
       ) : (
         <>
-          <FlashcardContent front={proposal.front} back={proposal.back} />
+          <FlashcardContent front={displayContent.front} back={displayContent.back} />
           <ProposalActionButtons
             status={status}
             onAccept={onAccept}

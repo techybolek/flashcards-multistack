@@ -93,7 +93,7 @@ export default function FlashcardGenerationView() {
           />
           
           <ActionButtons 
-            hasAccepted={Object.values(proposalStatuses).some(status => status === 'accepted')}
+            hasAccepted={Object.values(proposalStatuses).some(status => status === 'accepted' || status === 'edited')}
             hasProposals={proposals.length > 0}
             onSaveAccepted={async () => {
               const success = await handleSaveAccepted();

@@ -155,7 +155,7 @@ export function useFlashcardGeneration() {
   // Save accepted flashcards
   const handleSaveAccepted = useCallback(async () => {
     const acceptedIndices = Object.entries(proposalStatuses)
-      .filter(([_, status]) => status === 'accepted')
+      .filter(([_, status]) => status === 'accepted' || status === 'edited')
       .map(([index]) => parseInt(index));
     
     if (acceptedIndices.length === 0) return;
