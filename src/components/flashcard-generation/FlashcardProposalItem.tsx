@@ -13,6 +13,7 @@ interface FlashcardProposalItemProps {
   onAccept: () => void;
   onEdit: (front: string, back: string) => void;
   onReject: () => void;
+  onReset: () => void;
 }
 
 export default function FlashcardProposalItem({
@@ -21,7 +22,8 @@ export default function FlashcardProposalItem({
   status,
   onAccept,
   onEdit,
-  onReject
+  onReject,
+  onReset
 }: FlashcardProposalItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedFront, setEditedFront] = useState(proposal.front);
@@ -102,6 +104,7 @@ export default function FlashcardProposalItem({
             onAccept={onAccept}
             onEdit={handleEditClick}
             onReject={onReject}
+            onReset={onReset}
           />
         </>
       )}

@@ -11,6 +11,7 @@ interface FlashcardProposalsListProps {
   onAccept: (index: number) => void;
   onEdit: (index: number, front: string, back: string) => void;
   onReject: (index: number) => void;
+  onReset: (index: number) => void;
 }
 
 export default function FlashcardProposalsList({
@@ -18,7 +19,8 @@ export default function FlashcardProposalsList({
   proposalStatuses,
   onAccept,
   onEdit,
-  onReject
+  onReject,
+  onReset
 }: FlashcardProposalsListProps) {
   if (proposals.length === 0) {
     return <EmptyState />;
@@ -37,6 +39,7 @@ export default function FlashcardProposalsList({
             onAccept={() => onAccept(index)}
             onEdit={(front, back) => onEdit(index, front, back)}
             onReject={() => onReject(index)}
+            onReset={() => onReset(index)}
           />
         ))}
       </div>

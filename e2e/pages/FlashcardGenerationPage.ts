@@ -17,7 +17,7 @@ export class FlashcardGenerationPage {
     this.backButton = page.getByRole('link', { name: 'Back to Dashboard' });
     this.heading = page.getByRole('heading', { name: 'Generate Flashcards' });
     this.loadingIndicator = page.getByText('Generating flashcards...');
-    this.errorMessage = page.getByText('Text must be between 1000 and 10000 characters');
+    this.errorMessage = page.getByText('Text must be at least 1000 characters long');
     this.proposalsList = page.locator('.grid > div');
   }
 

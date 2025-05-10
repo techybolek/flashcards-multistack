@@ -63,7 +63,8 @@ test.describe('Flashcard Generation Page', () => {
     await flashcardPage.goto();
     
     // Enter valid text and generate
-    const validText = 'This is a test text that is long enough to generate flashcards. '.repeat(20);
+    //read the text from tests/test-data/quantumComputing.md
+    const validText = fs.readFileSync(resolve(__dirname, '../tests/test-data/quantumComputing.md'), 'utf8');
     await flashcardPage.fillTextInput(validText);
     await flashcardPage.generate();
     
@@ -99,20 +100,29 @@ test.describe('Flashcard Generation Page', () => {
     // Navigate to generate page
     await flashcardPage.goto();
     
-    // Generate flashcards
-    //read the text from tests/test-data/quantumComputing.txt
-    const validText = fs.readFileSync(resolve(__dirname, '../tests/test-data/quantumComputing.txt'), 'utf8');
+    // Enter valid text and generate
+    const validText = fs.readFileSync(resolve(__dirname, '../tests/test-data/quantumComputing.md'), 'utf8');
     await flashcardPage.fillTextInput(validText);
     await flashcardPage.generate();
+    
+    // Wait for proposals to be loaded and interactive
     await flashcardPage.waitForProposals();
-    // Test flashcard interactions
+    
+    // Get the first proposal
     const firstProposal = await flashcardPage.getFirstProposal();
     
-    // Accept and edit a flashcard
-    await flashcardPage.acceptProposal(firstProposal);
-    await flashcardPage.editProposal(firstProposal, 'Edited front', 'Edited back');
+    // Wait for the proposal to be in pending state and interactive
+    await expect(firstProposal.getByRole('button', { name: 'Edit' })).toBeEnabled();
+    await expect(firstProposal.getByRole('button', { name: 'Accept' })).toBeEnabled();
+    await expect(firstProposal.getByRole('button', { name: 'Reject' })).toBeEnabled();
     
-    // Save and verify redirect
+    // Edit the proposal
+    await flashcardPage.editProposal(firstProposal, 'Edited Front', 'Edited Back');
+    
+    // Accept the proposal
+    await flashcardPage.acceptProposal(firstProposal);
+    
+    // Save accepted proposals
     await flashcardPage.saveAccepted();
   });
 }); 

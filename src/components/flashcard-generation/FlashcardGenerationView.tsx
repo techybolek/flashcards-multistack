@@ -35,6 +35,7 @@ export default function FlashcardGenerationView() {
     handleAccept,
     handleEdit,
     handleReject,
+    handleReset,
     handleSaveAccepted,
     handleSaveAll
   } = useFlashcardGeneration();
@@ -85,6 +86,10 @@ export default function FlashcardGenerationView() {
             onAccept={handleAccept}
             onEdit={handleEdit}
             onReject={handleReject}
+            onReset={(index) => {
+              handleReset(index);
+              addNotification('info', 'Flashcard reset to pending state', 3000);
+            }}
           />
           
           <ActionButtons 

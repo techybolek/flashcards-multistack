@@ -140,6 +140,18 @@ export function useFlashcardGeneration() {
     }));
   }, []);
 
+  // Reset a flashcard to pending state
+  const handleReset = useCallback((index: number) => {
+    // Reset the status to pending
+    setProposalStatuses(prev => ({
+      ...prev,
+      [index]: 'pending'
+    }));
+
+    // Remove any edited content for this flashcard
+    setEditedFlashcards(prev => prev.filter(item => item.index !== index));
+  }, []);
+
   // Save accepted flashcards
   const handleSaveAccepted = useCallback(async () => {
     const acceptedIndices = Object.entries(proposalStatuses)
@@ -275,6 +287,7 @@ export function useFlashcardGeneration() {
     handleAccept,
     handleEdit,
     handleReject,
+    handleReset,
     handleSaveAccepted,
     handleSaveAll
   };
