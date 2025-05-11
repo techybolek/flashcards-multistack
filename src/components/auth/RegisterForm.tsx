@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { Button, Input, Label, useToast } from "@/components/ui";
+import { registerUser } from '@/lib/api/auth';
 
 interface FormData {
   email: string;
@@ -7,53 +8,46 @@ interface FormData {
   confirmPassword: string;
 }
 
-interface ApiResponse {
-  status: 'success' | 'error';
-  error?: string;
-  message?: string;
-}
-
 export function RegisterForm() {
   const { toast } = useToast();
-  const [formData, setFormData] = useState<FormData>({
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
-  const [errors, setErrors] = useState<Partial<FormData>>({});
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setErrors({});
-    setIsLoading(true);
-
-    // Basic validation
-    if (formData.password !== formData.confirmPassword) {
-      setErrors({ confirmPassword: "Passwords don't match" });
-      setIsLoading(false);
-      return;
-    }
-
+  const { 
+    register, 
+    handleSubmit, 
+    setError, 
+    watch,
+    reset,
+    formState: { errors, isSubmitting } 
+  } = useForm<FormData>();
+  
+  // Get password value for confirmation validation
+  const password = watch('password');
+  
+  const onSubmit = async (data: FormData) => {
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      const response = await registerUser({
+        email: data.email,
+        password: data.password,
+        confirmPassword: data.confirmPassword
       });
 
-      const data: ApiResponse = await response.json();
-
-      if (data.status === 'error') {
-        setErrors({ 
-          [data.error?.toLowerCase().includes('password') ? 'password' : 'email']: data.error 
-        });
+      if (response.status === 'error') {
+        // Set error based on message content
+        if (response.error?.toLowerCase().includes('password')) {
+          setError('password', { 
+            type: 'server', 
+            message: response.error 
+          });
+        } else {
+          setError('email', { 
+            type: 'server', 
+            message: response.error 
+          });
+        }
+        
         toast({
           variant: "destructive",
           title: "Error",
-          description: data.error,
+          description: response.error,
         });
         return;
       }
@@ -61,15 +55,11 @@ export function RegisterForm() {
       // Show success message
       toast({
         title: "Success",
-        description: data.message || "Registration successful! Please check your email to verify your account.",
+        description: response.message || "Registration successful! Please check your email to verify your account.",
       });
 
       // Clear form
-      setFormData({
-        email: '',
-        password: '',
-        confirmPassword: ''
-      });
+      reset();
 
     } catch (error) {
       toast({
@@ -77,27 +67,29 @@ export function RegisterForm() {
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
           type="email"
           placeholder="Enter your email"
-          value={formData.email}
-          onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-          required
+          {...register('email', { 
+            required: 'Email is required',
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: 'Invalid email address'
+            }
+          })}
           className="w-full"
           aria-invalid={errors.email ? 'true' : 'false'}
         />
         {errors.email && (
-          <p className="text-sm text-red-500">{errors.email}</p>
+          <p className="text-sm text-red-500">{errors.email.message}</p>
         )}
       </div>
       
@@ -107,14 +99,18 @@ export function RegisterForm() {
           id="password"
           type="password"
           placeholder="Choose a password"
-          value={formData.password}
-          onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-          required
+          {...register('password', { 
+            required: 'Password is required',
+            minLength: {
+              value: 8,
+              message: 'Password must be at least 8 characters'
+            }
+          })}
           className="w-full"
           aria-invalid={errors.password ? 'true' : 'false'}
         />
         {errors.password && (
-          <p className="text-sm text-red-500">{errors.password}</p>
+          <p className="text-sm text-red-500">{errors.password.message}</p>
         )}
       </div>
 
@@ -124,14 +120,15 @@ export function RegisterForm() {
           id="confirmPassword"
           type="password"
           placeholder="Confirm your password"
-          value={formData.confirmPassword}
-          onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-          required
+          {...register('confirmPassword', { 
+            required: 'Please confirm your password',
+            validate: (value: string) => value === password || "Passwords don't match"
+          })}
           className="w-full"
           aria-invalid={errors.confirmPassword ? 'true' : 'false'}
         />
         {errors.confirmPassword && (
-          <p className="text-sm text-red-500">{errors.confirmPassword}</p>
+          <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
         )}
       </div>
 
@@ -141,8 +138,8 @@ export function RegisterForm() {
         </a>
       </div>
 
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? 'Creating Account...' : 'Create Account'}
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? 'Creating Account...' : 'Create Account'}
       </Button>
     </form>
   );

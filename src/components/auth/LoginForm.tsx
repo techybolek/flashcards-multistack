@@ -1,90 +1,52 @@
-import { useState } from 'react';
-import { Button, Input, Label, useToast } from "@/components/ui";
+import { useForm } from 'react-hook-form';
+import { Button, Input, Label } from "@/components/ui";
+import { useAuth } from '@/components/hooks/useAuth';
 
 interface FormData {
   email: string;
   password: string;
 }
 
-interface ApiResponse {
-  status: 'success' | 'error';
-  error?: string;
-  redirectTo?: string;
-}
-
 export function LoginForm() {
-  const { toast } = useToast();
-  const [formData, setFormData] = useState<FormData>({
-    email: '',
-    password: ''
-  });
-  const [errors, setErrors] = useState<Partial<FormData>>({});
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setErrors({});
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-        credentials: 'include', // Important: This ensures cookies are sent with the request
+  const { login, isLoading } = useAuth();
+  const { 
+    register, 
+    handleSubmit, 
+    setError, 
+    formState: { errors } 
+  } = useForm<FormData>();
+  
+  const onSubmit = async (data: FormData) => {
+    const success = await login(data.email, data.password);
+    
+    if (!success) {
+      setError('password', { 
+        type: 'server', 
+        message: 'Invalid email or password' 
       });
-
-      const data: ApiResponse = await response.json();
-
-      if (data.status === 'error') {
-        setErrors({ password: data.error });
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: data.error,
-        });
-        return;
-      }
-
-      // Show success toast
-      toast({
-        title: "Success",
-        description: "Login successful! Redirecting...",
-      });
-
-      // Redirect to dashboard page after a short delay to allow the toast to be seen
-      setTimeout(() => {
-        window.location.href = data.redirectTo || '/dashboard';
-      }, 1000);
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-      });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
           type="email"
           placeholder="Enter your email"
-          value={formData.email}
-          onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-          required
+          {...register('email', { 
+            required: 'Email is required',
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: 'Invalid email address'
+            }
+          })}
           className="w-full"
           aria-invalid={errors.email ? 'true' : 'false'}
         />
         {errors.email && (
-          <p className="text-sm text-red-500">{errors.email}</p>
+          <p className="text-sm text-red-500">{errors.email.message}</p>
         )}
       </div>
       
@@ -94,14 +56,14 @@ export function LoginForm() {
           id="password"
           type="password"
           placeholder="Enter your password"
-          value={formData.password}
-          onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-          required
+          {...register('password', { 
+            required: 'Password is required' 
+          })}
           className="w-full"
           aria-invalid={errors.password ? 'true' : 'false'}
         />
         {errors.password && (
-          <p className="text-sm text-red-500">{errors.password}</p>
+          <p className="text-sm text-red-500">{errors.password.message}</p>
         )}
       </div>
 

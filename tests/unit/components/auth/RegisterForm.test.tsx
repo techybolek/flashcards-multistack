@@ -1,0 +1,109 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { RegisterForm } from '@/components/auth/RegisterForm';
+import { useAuth } from '@/components/hooks/useAuth';
+
+// Mock the useAuth hook
+vi.mock('@/components/hooks/useAuth', () => ({
+  useAuth: vi.fn(),
+}));
+
+describe('RegisterForm', () => {
+  const mockRegister = vi.fn();
+  
+  beforeEach(() => {
+    vi.resetAllMocks();
+    
+    // Set up the mock implementation for useAuth
+    (useAuth as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      register: mockRegister,
+      isLoading: false,
+    });
+  });
+
+  it('should render the form correctly', () => {
+    render(<RegisterForm />);
+    
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument();
+  });
+
+  it('should validate email format', async () => {
+    render(<RegisterForm />);
+    
+    const emailInput = screen.getByLabelText(/email/i);
+    fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
+    fireEvent.blur(emailInput);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/invalid email address/i)).toBeInTheDocument();
+    });
+  });
+
+  it('should validate password length', async () => {
+    render(<RegisterForm />);
+    
+    const passwordInput = screen.getByLabelText(/^password$/i);
+    fireEvent.change(passwordInput, { target: { value: 'short' } });
+    fireEvent.blur(passwordInput);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/password must be at least 8 characters/i)).toBeInTheDocument();
+    });
+  });
+
+  it('should validate that passwords match', async () => {
+    render(<RegisterForm />);
+    
+    // Enter password
+    const passwordInput = screen.getByLabelText(/^password$/i);
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+    
+    // Enter different confirm password
+    const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
+    fireEvent.change(confirmPasswordInput, { target: { value: 'password456' } });
+    fireEvent.blur(confirmPasswordInput);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/passwords don't match/i)).toBeInTheDocument();
+    });
+  });
+
+  it('should call register function with correct data on submit', async () => {
+    mockRegister.mockResolvedValueOnce(true);
+    
+    render(<RegisterForm />);
+    
+    // Fill out the form with valid data
+    fireEvent.change(screen.getByLabelText(/email/i), { 
+      target: { value: 'test@example.com' } 
+    });
+    fireEvent.change(screen.getByLabelText(/^password$/i), { 
+      target: { value: 'password123' } 
+    });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { 
+      target: { value: 'password123' } 
+    });
+    
+    // Submit the form
+    fireEvent.click(screen.getByRole('button', { name: /create account/i }));
+    
+    await waitFor(() => {
+      expect(mockRegister).toHaveBeenCalledWith('test@example.com', 'password123');
+    });
+  });
+
+  it('should disable the submit button when loading', () => {
+    (useAuth as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      register: mockRegister,
+      isLoading: true,
+    });
+    
+    render(<RegisterForm />);
+    
+    const submitButton = screen.getByRole('button', { name: /creating account/i });
+    expect(submitButton).toBeDisabled();
+  });
+}); 
