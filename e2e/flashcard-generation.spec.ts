@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { FlashcardGenerationPage } from './pages/FlashcardGenerationPage';
 import { AuthPage } from './pages/AuthPage';
+import { cleanupTestData } from './utils/test-cleanup';
 import dotenv from 'dotenv';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -30,6 +31,40 @@ test.describe('Flashcard Generation Page', () => {
     }
     flashcardPage = new FlashcardGenerationPage(page);
     authPage = new AuthPage(page);
+  });
+
+  // Add cleanup after all tests run
+  test.afterAll(async ({ request }) => {
+    if (skipIfNoCredentials) {
+      return;
+    }
+
+    // Ensure the user is authenticated for cleanup
+    const loginResponse = await request.post('/api/auth/login', {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: {
+        email: TEST_USER_EMAIL,
+        password: TEST_USER_PASSWORD
+      }
+    });
+    
+    // Verify successful login
+    expect(loginResponse.ok()).toBeTruthy();
+    const loginData = await loginResponse.json();
+    expect(loginData.status).toBe('success');
+    expect(loginData.user).toBeTruthy();
+    
+    // Clean up all test data for the authenticated user
+    const result = await cleanupTestData(request);
+    console.log(`Test cleanup completed: ${result.success ? 'Success' : 'Failed'}`);
+    if (result.deleted) {
+      console.log(`Deleted: ${JSON.stringify(result.deleted)}`);
+    }
+    if (result.errors) {
+      console.error(`Cleanup errors: ${result.errors.join(', ')}`);
+    }
   });
 
   test('should redirect to login when not authenticated', async ({ page }) => {
@@ -103,6 +138,8 @@ test.describe('Flashcard Generation Page', () => {
     // Enter valid text and generate
     const validText = fs.readFileSync(resolve(__dirname, '../tests/test-data/quantumComputing.md'), 'utf8');
     await flashcardPage.fillTextInput(validText);
+    //wait 
+    await page.waitForTimeout(50);
     await flashcardPage.generate();
     
     // Wait for proposals to be loaded and interactive
@@ -120,9 +157,9 @@ test.describe('Flashcard Generation Page', () => {
     await flashcardPage.editProposal(firstProposal, 'Edited Front', 'Edited Back');
     
     // Accept the proposal
-    await flashcardPage.acceptProposal(firstProposal);
+    //await flashcardPage.acceptProposal(firstProposal);
     
-    // Save accepted proposals
+    // Save accepted/edited proposals
     await flashcardPage.saveAccepted();
   });
 }); 
