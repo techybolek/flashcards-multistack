@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { Button, Input, Label, useToast } from "@/components/ui";
-import { recoverPassword } from '@/lib/api/auth';
+import { useAuth } from '@/components/hooks/useAuth';
 import { useState } from 'react';
 import { Loader2 } from "lucide-react";
 
@@ -10,23 +10,24 @@ interface FormData {
 
 export function RecoverForm() {
   const { toast } = useToast();
+  const { recoverPassword, isLoading } = useAuth();
   const [isSuccess, setIsSuccess] = useState(false);
   const { 
     register, 
     handleSubmit, 
-    formState: { errors, isSubmitting } 
+    formState: { errors } 
   } = useForm<FormData>();
   
   const onSubmit = async (data: FormData) => {
     try {
       setIsSuccess(false);
-      const response = await recoverPassword(data);
+      const success = await recoverPassword(data.email);
 
-      if (response.status === 'error') {
+      if (!success) {
         toast({
           variant: "destructive",
           title: "Error",
-          description: response.error,
+          description: "Failed to send recovery email. Please try again.",
         });
         return;
       }
@@ -35,7 +36,7 @@ export function RecoverForm() {
       // Show success message
       toast({
         title: "Email Sent",
-        description: response.message || "If an account exists with that email, password reset instructions have been sent.",
+        description: "If an account exists with that email, password reset instructions have been sent.",
       });
     } catch (error) {
       setIsSuccess(false);
@@ -64,7 +65,7 @@ export function RecoverForm() {
           })}
           className={`w-full ${isSuccess ? 'border-green-500 focus:ring-green-500' : ''}`}
           aria-invalid={errors.email ? 'true' : 'false'}
-          disabled={isSubmitting || isSuccess}
+          disabled={isLoading || isSuccess}
         />
         {errors.email && (
           <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -80,9 +81,9 @@ export function RecoverForm() {
       <Button 
         type="submit" 
         className={`w-full ${isSuccess ? 'bg-green-600 hover:bg-green-700' : ''}`}
-        disabled={isSubmitting || isSuccess}
+        disabled={isLoading || isSuccess}
       >
-        {isSubmitting ? (
+        {isLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Processing...

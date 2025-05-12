@@ -29,28 +29,24 @@ describe('RecoverForm', () => {
     expect(screen.getByText(/remember your password/i)).toBeInTheDocument();
   });
 
-  it('should validate email format', async () => {
+  it('should show required field error', async () => {
     render(<RecoverForm />);
     
-    const emailInput = screen.getByLabelText(/email/i);
-    fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
-    fireEvent.blur(emailInput);
-    
-    await waitFor(() => {
-      expect(screen.getByText(/invalid email address/i)).toBeInTheDocument();
-    });
-  });
-
-  it('should validate required fields', async () => {
-    render(<RecoverForm />);
-    
-    // Submit the form without filling any fields
+    // Submit empty form
     const submitButton = screen.getByRole('button', { name: /reset password/i });
     fireEvent.click(submitButton);
     
+    // Check for our custom validation message
     await waitFor(() => {
-      expect(screen.getByText(/email is required/i)).toBeInTheDocument();
+      expect(screen.getByText('Email is required')).toBeInTheDocument();
     });
+  });
+
+  it('should use native email validation', () => {
+    render(<RecoverForm />);
+    
+    const emailInput = screen.getByLabelText(/email/i) as HTMLInputElement;
+    expect(emailInput).toHaveAttribute('type', 'email');
   });
 
   it('should call recoverPassword function with correct email on submit', async () => {

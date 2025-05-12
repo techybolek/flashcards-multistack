@@ -45,17 +45,26 @@ describe('RegisterForm', () => {
   it('should validate password length', async () => {
     render(<RegisterForm />);
     
+    // Enter a short password
     const passwordInput = screen.getByLabelText(/^password$/i);
     fireEvent.change(passwordInput, { target: { value: 'short' } });
-    fireEvent.blur(passwordInput);
     
+    // Submit form to trigger validation
+    const submitButton = screen.getByRole('button', { name: /create account/i });
+    fireEvent.click(submitButton);
+    
+    // Wait for the error message
     await waitFor(() => {
-      expect(screen.getByText(/password must be at least 8 characters/i)).toBeInTheDocument();
+      expect(screen.getByText('Password must be at least 8 characters')).toBeInTheDocument();
     });
   });
 
-  it.only('should validate that passwords match', async () => {
+  it('should validate that passwords match', async () => {
     render(<RegisterForm />);
+    
+    // Enter email first (required field)
+    const emailInput = screen.getByLabelText(/email/i);
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
     
     // Enter password
     const passwordInput = screen.getByLabelText(/^password$/i);
@@ -64,8 +73,12 @@ describe('RegisterForm', () => {
     // Enter different confirm password
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
     fireEvent.change(confirmPasswordInput, { target: { value: 'password456' } });
-    fireEvent.blur(confirmPasswordInput);
     
+    // Submit the form to trigger validation
+    const submitButton = screen.getByRole('button', { name: /create account/i });
+    fireEvent.click(submitButton);
+    
+    // Wait for the error message
     await waitFor(() => {
       expect(screen.getByText(/passwords don't match/i)).toBeInTheDocument();
     });
