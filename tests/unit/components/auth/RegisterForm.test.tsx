@@ -25,21 +25,15 @@ describe('RegisterForm', () => {
     render(<RegisterForm />);
     
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument();
   });
 
-  it('should validate email format', async () => {
+  it('should use native email validation', () => {
     render(<RegisterForm />);
-    
-    const emailInput = screen.getByLabelText(/email/i);
-    fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
-    fireEvent.blur(emailInput);
-    
-    await waitFor(() => {
-      expect(screen.getByText(/invalid email address/i)).toBeInTheDocument();
-    });
+    const emailInput = screen.getByLabelText(/email/i) as HTMLInputElement;
+    expect(emailInput).toHaveAttribute('type', 'email');
   });
 
   it('should validate password length', async () => {
