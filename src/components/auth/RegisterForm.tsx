@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { Button, Input, Label, useToast } from "@/components/ui";
-import { registerUser } from '@/lib/api/auth';
+import { useAuth } from '@/components/hooks/useAuth';
 
 interface FormData {
   email: string;
@@ -10,13 +10,14 @@ interface FormData {
 
 export function RegisterForm() {
   const { toast } = useToast();
+  const { register: registerUser, isLoading } = useAuth();
   const { 
     register, 
     handleSubmit, 
     setError, 
     watch,
     reset,
-    formState: { errors, isSubmitting } 
+    formState: { errors } 
   } = useForm<FormData>();
   
   // Get password value for confirmation validation
@@ -24,30 +25,12 @@ export function RegisterForm() {
   
   const onSubmit = async (data: FormData) => {
     try {
-      const response = await registerUser({
-        email: data.email,
-        password: data.password,
-        confirmPassword: data.confirmPassword
-      });
+      const success = await registerUser(data.email, data.password);
 
-      if (response.status === 'error') {
-        // Set error based on message content
-        if (response.error?.toLowerCase().includes('password')) {
-          setError('password', { 
-            type: 'server', 
-            message: response.error 
-          });
-        } else {
-          setError('email', { 
-            type: 'server', 
-            message: response.error 
-          });
-        }
-        
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: response.error,
+      if (!success) {
+        setError('email', { 
+          type: 'server', 
+          message: 'Registration failed. Please try again.' 
         });
         return;
       }
@@ -55,7 +38,7 @@ export function RegisterForm() {
       // Show success message
       toast({
         title: "Success",
-        description: response.message || "Registration successful! Please check your email to verify your account.",
+        description: "Registration successful! Please check your email to verify your account.",
       });
 
       // Clear form
@@ -138,8 +121,8 @@ export function RegisterForm() {
         </a>
       </div>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? 'Creating Account...' : 'Create Account'}
+      <Button type="submit" className="w-full" disabled={isLoading}>
+        {isLoading ? 'Creating Account...' : 'Create Account'}
       </Button>
     </form>
   );

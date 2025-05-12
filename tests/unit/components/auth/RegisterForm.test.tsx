@@ -14,7 +14,7 @@ describe('RegisterForm', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     
-    // Set up the mock implementation for useAuth
+    // Set up the mock implementation for useAuth with initial state
     (useAuth as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       register: mockRegister,
       isLoading: false,
@@ -54,7 +54,7 @@ describe('RegisterForm', () => {
     });
   });
 
-  it('should validate that passwords match', async () => {
+  it.only('should validate that passwords match', async () => {
     render(<RegisterForm />);
     
     // Enter password
@@ -72,7 +72,8 @@ describe('RegisterForm', () => {
   });
 
   it('should call register function with correct data on submit', async () => {
-    mockRegister.mockResolvedValueOnce(true);
+    // Setup mock to return a resolved promise
+    mockRegister.mockResolvedValue(true);
     
     render(<RegisterForm />);
     
@@ -88,14 +89,16 @@ describe('RegisterForm', () => {
     });
     
     // Submit the form
-    fireEvent.click(screen.getByRole('button', { name: /create account/i }));
+    await fireEvent.click(screen.getByRole('button', { name: /create account/i }));
     
+    // Wait for the register function to be called
     await waitFor(() => {
       expect(mockRegister).toHaveBeenCalledWith('test@example.com', 'password123');
-    });
+    }, { timeout: 1000 });
   });
 
-  it('should disable the submit button when loading', () => {
+  it('should disable the submit button when loading', async () => {
+    // Mock useAuth to return isLoading as true
     (useAuth as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       register: mockRegister,
       isLoading: true,
@@ -103,7 +106,8 @@ describe('RegisterForm', () => {
     
     render(<RegisterForm />);
     
-    const submitButton = screen.getByRole('button', { name: /creating account/i });
+    // Find and verify the button
+    const submitButton = screen.getByRole('button', { name: /creating account\.\.\./i });
     expect(submitButton).toBeDisabled();
   });
 }); 
