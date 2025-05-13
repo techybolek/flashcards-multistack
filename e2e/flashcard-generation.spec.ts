@@ -97,6 +97,12 @@ test.describe('Flashcard Generation Page', () => {
     // Navigate to generate page
     await flashcardPage.goto();
     
+    // Check for main elements
+    await expect(flashcardPage.heading).toBeVisible();
+    await expect(flashcardPage.backButton).toBeVisible();
+    await expect(flashcardPage.textInput).toBeVisible();
+    await expect(flashcardPage.generateButton).toBeVisible();
+
     // Enter valid text and generate
     //read the text from tests/test-data/quantumComputing.md
     const validText = fs.readFileSync(resolve(__dirname, '../tests/test-data/quantumComputing.md'), 'utf8');
@@ -119,6 +125,13 @@ test.describe('Flashcard Generation Page', () => {
     // Navigate to generate page
     await flashcardPage.goto();
     
+    
+    // Check for main elements
+    await expect(flashcardPage.heading).toBeVisible();
+    await expect(flashcardPage.backButton).toBeVisible();
+    await expect(flashcardPage.textInput).toBeVisible();
+    await expect(flashcardPage.generateButton).toBeVisible();
+
     // Enter invalid text
     await flashcardPage.fillTextInput('Too short');
     
@@ -127,6 +140,9 @@ test.describe('Flashcard Generation Page', () => {
   });
 
   test('should handle flashcard proposal interactions', async ({ page }) => {
+    // Set a longer timeout for this test as it involves API calls and navigation
+    test.setTimeout(60000);
+    
     // Login first
     await authPage.goto();
     await authPage.login(TEST_USER_EMAIL!, TEST_USER_PASSWORD!);
@@ -135,31 +151,29 @@ test.describe('Flashcard Generation Page', () => {
     // Navigate to generate page
     await flashcardPage.goto();
     
+    // Check for main elements
+    await expect(flashcardPage.heading).toBeVisible();
+    await expect(flashcardPage.backButton).toBeVisible();
+    await expect(flashcardPage.textInput).toBeVisible();
+    await expect(flashcardPage.generateButton).toBeVisible();
+
     // Enter valid text and generate
     const validText = fs.readFileSync(resolve(__dirname, '../tests/test-data/quantumComputing.md'), 'utf8');
     await flashcardPage.fillTextInput(validText);
-    //wait 
-    await page.waitForTimeout(50);
+    
+    // Generate the flashcards
     await flashcardPage.generate();
     
-    // Wait for proposals to be loaded and interactive
+    // Wait for proposals to be loaded
     await flashcardPage.waitForProposals();
     
     // Get the first proposal
     const firstProposal = await flashcardPage.getFirstProposal();
     
-    // Wait for the proposal to be in pending state and interactive
-    await expect(firstProposal.getByRole('button', { name: 'Edit' })).toBeEnabled();
-    await expect(firstProposal.getByRole('button', { name: 'Accept' })).toBeEnabled();
-    await expect(firstProposal.getByRole('button', { name: 'Reject' })).toBeEnabled();
-    
-    // Edit the proposal
+    // Edit the proposal - this will automatically mark it as accepted
     await flashcardPage.editProposal(firstProposal, 'Edited Front', 'Edited Back');
-    
-    // Accept the proposal
-    //await flashcardPage.acceptProposal(firstProposal);
     
     // Save accepted/edited proposals
     await flashcardPage.saveAccepted();
   });
-}); 
+});

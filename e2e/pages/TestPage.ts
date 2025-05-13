@@ -4,34 +4,42 @@ export class TestPage {
   readonly page: Page;
   readonly messageTextarea: Locator;
   readonly submitButton: Locator;
+  readonly messageForm: Locator;
+  readonly statusMessage: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.messageTextarea = page.getByPlaceholder('Type your message here...');
-    this.submitButton = page.getByRole('button', { name: 'Submit' });
+    this.messageForm = page.getByTestId('message-form');
+    this.messageTextarea = page.getByTestId('message-input');
+    this.submitButton = page.getByTestId('submit-button');
+    this.statusMessage = page.getByTestId('status-message');
   }
 
   async goto() {
     await this.page.goto('/test-page');
+    await this.messageForm.waitFor({ state: 'visible' });
   }
 
   async fillMessageForm(message: string) {
+    await this.messageTextarea.waitFor({ state: 'visible' });
+    await this.messageTextarea.click();
     await this.messageTextarea.fill(message);
+    // Ensure the value is set
+    await expect(this.messageTextarea).toHaveValue(message);
   }
 
   async submitMessage() {
+    await this.submitButton.waitFor({ state: 'visible' });
     await this.submitButton.click();
   }
 
-  async expectMessageSubmitted() {
-    // This assumes there's a dialog or alert with the message
-    // You may need to adjust this based on your actual implementation
-    const dialog = this.page.getByText('Message submitted:');
-    await expect(dialog).toBeVisible();
+  async expectMessageSubmitted(expectedMessage: string) {
+    await expect(this.statusMessage).toBeVisible();
+    await expect(this.statusMessage).toHaveText(`Message submitted: ${expectedMessage}`);
   }
 
   async expectEmptyMessageWarning() {
-    const warning = this.page.getByText('Please enter a message first!');
-    await expect(warning).toBeVisible();
+    await expect(this.statusMessage).toBeVisible();
+    await expect(this.statusMessage).toHaveText('Please enter a message first!');
   }
 } 

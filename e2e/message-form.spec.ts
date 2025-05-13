@@ -6,37 +6,22 @@ test.describe('Message Form', () => {
     const testPage = new TestPage(page);
     await testPage.goto();
     
-    // Fill and submit the form
-    await testPage.fillMessageForm('Hello from Playwright!');
-    
-    // Handle the alert dialog
-    page.on('dialog', async dialog => {
-      expect(dialog.message()).toContain('Message submitted: Hello from Playwright!');
-      await dialog.accept();
-    });
-    
+    const message = 'Hello from Playwright!';
+    await testPage.fillMessageForm(message);
     await testPage.submitMessage();
+    await testPage.expectMessageSubmitted(message);
   });
   
   test('should show warning for empty message', async ({ page }) => {
     const testPage = new TestPage(page);
     await testPage.goto();
-    
-    // Handle the alert dialog
-    page.on('dialog', async dialog => {
-      expect(dialog.message()).toBe('Please enter a message first!');
-      await dialog.accept();
-    });
-    
-    // Submit without filling the form
     await testPage.submitMessage();
+    await testPage.expectEmptyMessageWarning();
   });
   
   test('should take screenshot for visual comparison', async ({ page }) => {
     const testPage = new TestPage(page);
     await testPage.goto();
-    
-    // Take a screenshot for visual regression testing
     await expect(page).toHaveScreenshot('message-form.png');
   });
 }); 

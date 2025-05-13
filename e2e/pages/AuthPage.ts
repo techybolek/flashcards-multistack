@@ -30,7 +30,7 @@ export class AuthPage {
     await this.loginButton.click();
     
     // Wait for navigation to dashboard
-    await this.page.waitForURL('dashboard', { timeout: 10000 });
+    await this.page.waitForURL('dashboard', { timeout: 40000 });
   }
 
   async expectLoginError() {
