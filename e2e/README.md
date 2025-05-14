@@ -51,7 +51,7 @@ TEST_USER_EMAIL=your-test-user@example.com
 TEST_USER_PASSWORD=your-test-user-password
 ```
 
-These can be set in the `.env.test` file in the project root.
+These can be set in the `.env` file in the project root.
 
 ## Test isolation
 

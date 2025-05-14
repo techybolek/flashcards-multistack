@@ -12,7 +12,7 @@ const __dirname = dirname(__filename);
 const require = createRequire(import.meta.url);
 
 // Load environment variables
-dotenv.config({ path: resolve(__dirname, '../../../.env.test') });
+dotenv.config({ path: resolve(__dirname, '../../../.env') });
 
 // Get test credentials from environment variables
 const TEST_USER_EMAIL = process.env.TEST_USER_EMAIL;

@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Load test environment variables
-dotenv.config({ path: resolve(__dirname, '../.env.test') });
+dotenv.config({ path: resolve(__dirname, '../.env') });
 
 // Get test credentials from environment variables
 const TEST_USER_EMAIL = process.env.TEST_USER_EMAIL;
