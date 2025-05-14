@@ -8,7 +8,7 @@ The login endpoint test (`login.test.js`) requires real credentials to fully tes
 
 ### Setup
 
-1. Create a `.env.test` file in the project root with the following variables:
+1. Create a `.env` file in the project root with the following variables:
 
 ```
 TEST_USER_EMAIL=your_test_user@example.com
