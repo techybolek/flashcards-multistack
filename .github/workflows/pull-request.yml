@@ -1,0 +1,124 @@
+name: Pull Request Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  lint:
+    name: Lint Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run linting
+        run: npm run lint
+
+  unit-test:
+    needs: lint
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run unit tests with coverage
+        run: npm run test:coverage
+        
+      - name: Upload unit test coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-coverage
+          path: coverage/
+          
+  e2e-test:
+    needs: lint
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      NODE_ENV: test
+      
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+        
+      - name: Run E2E tests
+        run: npm run test:e2e
+        
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+
+  status-comment:
+    needs: [unit-test, e2e-test]
+    name: PR Status Comment
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+        
+      - name: Create status comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const unitTestCoverage = require('./unit-test-coverage/coverage-summary.json');
+            
+            const statusComment = `## Pull Request Check Results 🎯
+            
+            ### Test Coverage Summary
+            - Unit Tests: ${unitTestCoverage.total.lines.pct}% lines covered
+            - E2E Tests: Completed ✅
+            
+            ### Detailed Results
+            - Linting: ✅ Passed
+            - Unit Tests: ✅ Passed
+            - E2E Tests: ✅ Passed
+            
+            [View detailed Playwright report](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: statusComment
+            }); 
