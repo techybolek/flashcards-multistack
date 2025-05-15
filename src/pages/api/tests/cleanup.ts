@@ -7,6 +7,7 @@ const isProduction = import.meta.env.PROD && !import.meta.env.DEV;
 export const POST: APIRoute = async ({ request, locals, cookies }) => {
   // Safety check: Don't allow in production
   if (isProduction) {
+    console.error('Test cleanup endpoint is not available in production');
     return new Response(
       JSON.stringify({ 
         success: false, 
