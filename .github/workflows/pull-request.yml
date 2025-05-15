@@ -77,6 +77,25 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
         
+      - name: Build application
+        run: npm run build
+        
+      - name: Start application
+        run: npm run preview &
+        
+      - name: Wait for app to be ready
+        run: |
+          timeout=30
+          while ! nc -z localhost 4321; do
+            if [ $timeout -le 0 ]; then
+              echo "Timeout waiting for app to start"
+              exit 1
+            fi
+            echo "Waiting for app to be ready..."
+            sleep 1
+            timeout=$((timeout - 1))
+          done
+        
       - name: Run E2E tests
         run: npm run test:e2e
         

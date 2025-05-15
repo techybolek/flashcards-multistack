@@ -27,7 +27,7 @@ const generateFlashcardsFromText = async (text: string) => {
   try {
     // Format system message
     const systemMessage = openRouterService.formatSystemMessage({
-      systemPrompt: 'You are a helpful assistant that generates flashcards from text. Create 5-10 high-quality flashcards with a question on the front and an answer on the back. Each flashcard should cover a key concept from the text. Format your response as a JSON array with objects containing "front" and "back" properties.',
+      systemPrompt: 'You are a helpful assistant that generates flashcards from text. Create 5-10 high-quality flashcards with a question on the front and an answer on the back. Each flashcard should cover a key concept from the text. Format your response as a JSON array with objects containing "front" and "back" properties. JSON only, no extra text or tags.',
       temperature: 0.7,
       maxTokens: 2000
     });

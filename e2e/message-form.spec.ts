@@ -22,6 +22,17 @@ test.describe('Message Form', () => {
   test('should take screenshot for visual comparison', async ({ page }) => {
     const testPage = new TestPage(page);
     await testPage.goto();
-    await expect(page).toHaveScreenshot('message-form.png');
+    
+    // Wait for any animations to complete
+    await page.waitForTimeout(1000);
+    
+    // Ensure consistent viewport size
+    await page.setViewportSize({ width: 1280, height: 720 });
+    
+    await expect(page).toHaveScreenshot('message-form.png', {
+      threshold: 0.2, // Allow for small differences
+      animations: 'disabled', // Disable animations
+      scale: 'css' // Use CSS scale instead of device scale
+    });
   });
 }); 
