@@ -97,6 +97,15 @@ export default function FlashcardList({ flashcards, onEdit }: FlashcardListProps
             <div className="space-y-4">
               <div 
                 onClick={() => toggleFlip(flashcard.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleFlip(flashcard.id);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`Flashcard ${flippedCards.has(flashcard.id) ? 'back' : 'front'} side`}
                 className="cursor-pointer group"
               >
                 <div className="flex justify-between items-center mb-1">

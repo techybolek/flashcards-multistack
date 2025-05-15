@@ -1,4 +1,4 @@
-import { beforeAll, afterAll, afterEach, expect, vi } from 'vitest';
+import { beforeAll, afterAll, afterEach, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 
 // Mock global objects if needed

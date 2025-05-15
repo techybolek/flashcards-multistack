@@ -35,7 +35,7 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
 
     // Add user_id to each flashcard
     body.forEach(flashcard => {
-      // @ts-ignore
+      // @ts-expect-error - user_id is not typed
       flashcard.user_id = locals.user.id;
     });
 
