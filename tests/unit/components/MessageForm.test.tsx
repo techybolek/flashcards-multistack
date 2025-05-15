@@ -1,16 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MessageForm } from '@/components/MessageForm';
 
-// Mock the alert function
-const alertMock = vi.fn();
-window.alert = alertMock;
-
 describe('MessageForm', () => {
-  beforeEach(() => {
-    alertMock.mockClear();
-  });
-
   it('renders textarea and submit button', () => {
     render(<MessageForm />);
     
@@ -30,7 +22,7 @@ describe('MessageForm', () => {
     expect(textarea).toHaveValue('Hello, world!');
   });
 
-  it('shows alert with message when submitting with text', () => {
+  it('shows status message when submitting with text', () => {
     render(<MessageForm />);
     
     const textarea = screen.getByPlaceholderText('Type your message here...');
@@ -39,16 +31,18 @@ describe('MessageForm', () => {
     fireEvent.change(textarea, { target: { value: 'Test message' } });
     fireEvent.click(submitButton);
     
-    expect(alertMock).toHaveBeenCalledWith('Message submitted: Test message');
+    const statusMessage = screen.getByTestId('status-message');
+    expect(statusMessage).toHaveTextContent('Message submitted: Test message');
     expect(textarea).toHaveValue('');
   });
 
-  it('shows warning alert when submitting with empty text', () => {
+  it('shows warning status message when submitting with empty text', () => {
     render(<MessageForm />);
     
     const submitButton = screen.getByText('Submit');
     fireEvent.click(submitButton);
     
-    expect(alertMock).toHaveBeenCalledWith('Please enter a message first!');
+    const statusMessage = screen.getByTestId('status-message');
+    expect(statusMessage).toHaveTextContent('Please enter a message first!');
   });
 }); 
