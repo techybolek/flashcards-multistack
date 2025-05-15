@@ -18,7 +18,15 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*", "tests/**/*"],
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+    "e2e/**/*",
+    "*.ts",
+    "*.js",
+    "*.cjs",
+    "*.mjs"
+  ],
   "exclude": ["node_modules"],
   "ts-node": {
     "esm": true,

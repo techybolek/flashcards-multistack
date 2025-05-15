@@ -4,12 +4,10 @@ import supertest from 'supertest';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
-import { createRequire } from 'module';
 
 // Setup paths for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const require = createRequire(import.meta.url);
 
 // Load environment variables
 dotenv.config({ path: resolve(__dirname, '../../../.env') });
@@ -35,11 +33,12 @@ describe('Login API Integration Test', function() {
   before(async function() {
     try {
       // Attempt to make a simple request to check if server is running
-      const response = await request.get('/').timeout(3000);
+      await request.get('/').timeout(3000);
       serverRunning = true;
     } catch (error) {
       console.error('🚨 ERROR: Server is not running at ' + API_URL);
       console.error('Please start your server with: npm run dev');
+      console.error(error);
       this.skip();
     }
   });
@@ -60,7 +59,7 @@ describe('Login API Integration Test', function() {
     try {
       return JSON.parse(response.text);
     } catch (e) {
-      console.error('Error parsing response text as JSON:', response.text);
+      console.error('Error parsing response text as JSON:', response.text, e);
       return null;
     }
   };

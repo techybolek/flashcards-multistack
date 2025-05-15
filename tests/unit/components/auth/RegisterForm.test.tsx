@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { RegisterForm } from '@/components/auth/RegisterForm';
 import { useAuth } from '@/components/hooks/useAuth';
