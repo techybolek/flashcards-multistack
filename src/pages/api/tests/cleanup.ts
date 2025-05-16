@@ -2,16 +2,16 @@ import type { APIRoute } from 'astro';
 import { createServerSupabaseClient } from '@/lib/supabase';
 
 // Environment validation to prevent running in production
-const isProduction = import.meta.env.PROD && !import.meta.env.DEV;
+const isTestCleanupEnabled = import.meta.env.ENABLE_TEST_CLEANUP === 'true';
 
 export const POST: APIRoute = async ({ request, locals, cookies }) => {
-  // Safety check: Don't allow in production
-  if (isProduction) {
-    console.error('Test cleanup endpoint is not available in production');
+  // Safety check: Only allow when explicitly enabled
+  if (!isTestCleanupEnabled) {
+    console.error('Test cleanup endpoint is not enabled. Set ENABLE_TEST_CLEANUP=true to enable it.');
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: 'Test cleanup endpoint is not available in production' 
+        error: 'Test cleanup endpoint is not enabled. Set ENABLE_TEST_CLEANUP=true to enable it.' 
       }),
       { status: 403, headers: { 'Content-Type': 'application/json' } }
     );

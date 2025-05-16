@@ -93,15 +93,17 @@ test.describe('Flashcard Generation Page', () => {
     await authPage.goto();
     await authPage.login(TEST_USER_EMAIL!, TEST_USER_PASSWORD!);
     await authPage.expectToBeLoggedIn();
+    console.log('logged in');
     
     // Navigate to generate page
     await flashcardPage.goto();
-    
+    console.log('navigated to generate page');
     // Check for main elements
     await expect(flashcardPage.heading).toBeVisible();
     await expect(flashcardPage.backButton).toBeVisible();
     await expect(flashcardPage.textInput).toBeVisible();
     await expect(flashcardPage.generateButton).toBeVisible();
+    console.log('main elements visible');
 
     // Enter valid text and generate
     //read the text from tests/test-data/quantumComputing.md
@@ -110,10 +112,12 @@ test.describe('Flashcard Generation Page', () => {
     await flashcardPage.generate();
     
     // Check for loading state
-    //await expect(flashcardPage.loadingIndicator).toBeVisible();
-    
+    await expect(flashcardPage.loadingIndicator).toBeVisible();
+  
+    console.log('waiting for proposals');
     // Wait for generation to complete
     await flashcardPage.waitForProposals();
+    console.log('proposals loaded');
   });
 
   test('should handle invalid text input', async ({ page }) => {

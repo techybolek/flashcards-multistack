@@ -81,12 +81,12 @@ jobs:
         run: npm run build
         
       - name: Start application
-        run: npm run preview &
+        run: npm run dev &
         
       - name: Wait for app to be ready
         run: |
           timeout=30
-          while ! nc -z localhost 4321; do
+          while ! nc -z localhost 3000; do
             if [ $timeout -le 0 ]; then
               echo "Timeout waiting for app to start"
               exit 1
