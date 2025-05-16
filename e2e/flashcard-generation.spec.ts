@@ -58,12 +58,17 @@ test.describe('Flashcard Generation Page', () => {
     
     // Clean up all test data for the authenticated user
     const result = await cleanupTestData(request);
-    console.log(`Test cleanup completed: ${result.success ? 'Success' : 'Failed'}`);
-    if (result.deleted) {
-      console.log(`Deleted: ${JSON.stringify(result.deleted)}`);
-    }
-    if (result.errors) {
-      console.error(`Cleanup errors: ${result.errors.join(', ')}`);
+    
+    if (result.skipped) {
+      console.log('Test cleanup was skipped: Cleanup is not enabled');
+    } else {
+      console.log(`Test cleanup completed: ${result.success ? 'Success' : 'Failed'}`);
+      if (result.deleted) {
+        console.log(`Deleted: ${JSON.stringify(result.deleted)}`);
+      }
+      if (result.errors) {
+        console.warn(`Cleanup warnings: ${result.errors.join(', ')}`);
+      }
     }
   });
 
