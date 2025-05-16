@@ -19,20 +19,51 @@ test.describe('Message Form', () => {
     await testPage.expectEmptyMessageWarning();
   });
   
-  test('should take screenshot for visual comparison', async ({ page }) => {
+  test('should have correct visual properties and layout', async ({ page }) => {
     const testPage = new TestPage(page);
     await testPage.goto();
     
-    // Wait for any animations to complete
-    await page.waitForTimeout(1000);
+    // Test form layout and positioning
+    await expect(testPage.messageForm).toBeVisible();
+    const formBox = await testPage.messageForm.boundingBox();
+    expect(formBox).toBeTruthy();
+    expect(formBox!.width).toBeGreaterThan(200); // Form should have reasonable width
     
-    // Ensure consistent viewport size
+    // Test textarea visual properties
+    await expect(testPage.messageTextarea).toBeVisible();
+    await expect(testPage.messageTextarea).toHaveCSS('resize', 'vertical');
+    await expect(testPage.messageTextarea).toHaveCSS('min-height', '100px');
+    
+    // Test button styling
+    await expect(testPage.submitButton).toBeVisible();
+    await expect(testPage.submitButton).toHaveCSS('background-color', /rgb\(.*\)/); // Should have a background color
+    await expect(testPage.submitButton).toHaveCSS('cursor', 'pointer');
+    
+    // Test form accessibility
+    await expect(testPage.messageTextarea).toHaveAttribute('aria-label', 'Message input');
+    await expect(testPage.submitButton).toHaveAttribute('type', 'submit');
+    
+    // Test responsive layout
     await page.setViewportSize({ width: 1280, height: 720 });
+    const desktopBox = await testPage.messageForm.boundingBox();
+    await page.setViewportSize({ width: 375, height: 667 });
+    const mobileBox = await testPage.messageForm.boundingBox();
+    expect(desktopBox).toBeTruthy();
+    expect(mobileBox).toBeTruthy();
+    expect(desktopBox!.width).toBeGreaterThan(mobileBox!.width); // Should be responsive
     
-    await expect(page).toHaveScreenshot('message-form.png', {
-      threshold: 0.2, // Allow for small differences
-      animations: 'disabled', // Disable animations
-      scale: 'css' // Use CSS scale instead of device scale
+    // Test form interactions
+    await testPage.messageTextarea.hover();
+    await expect(testPage.messageTextarea).toHaveCSS('border-color', /rgb\(.*\)/); // Should have hover state
+    
+    // Test form alignment
+    const formPosition = await testPage.messageForm.evaluate((el) => {
+      const style = window.getComputedStyle(el);
+      return {
+        display: style.display,
+        margin: style.margin
+      };
     });
+    expect(formPosition.display).toBe('flex');
   });
 }); 

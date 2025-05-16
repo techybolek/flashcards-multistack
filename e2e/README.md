@@ -6,6 +6,21 @@ This directory contains end-to-end tests for the application using Playwright.
 
 To ensure test isolation and avoid data pollution between test runs, we use a test cleanup utility that removes all test data after each test suite completes.
 
+### Environment Setup
+
+You need to set the following environment variables in your `.env` file:
+
+```
+# Required for test cleanup functionality
+ENABLE_TEST_CLEANUP=true
+
+# Required for authentication
+TEST_USER_EMAIL=your-test-user@example.com
+TEST_USER_PASSWORD=your-test-user-password
+```
+
+The `ENABLE_TEST_CLEANUP` variable must be set to `true` for the cleanup endpoint to work. This is required for running e2e tests against both development and preview builds.
+
 ### How it works
 
 1. Each test suite should use the `cleanupTestData` utility in an `afterAll` hook:
@@ -29,7 +44,7 @@ test.afterAll(async ({ request }) => {
 ```
 
 2. The utility calls a protected API endpoint (`/api/tests/cleanup`) that:
-   - Only works in non-production environments
+   - Only works when ENABLE_TEST_CLEANUP=true is set
    - Requires the user to be authenticated (same auth pattern as other APIs)
    - Deletes all records associated with the currently authenticated user:
      - Flashcards
@@ -41,17 +56,7 @@ test.afterAll(async ({ request }) => {
 - The cleanup endpoint requires the user to be authenticated with Supabase
 - Authentication is performed by calling the `/api/auth/login` endpoint before cleanup
 - The endpoint doesn't need any additional parameters - it uses the authenticated user's ID
-
-### Environment setup
-
-You need to set the following environment variables:
-
-```
-TEST_USER_EMAIL=your-test-user@example.com
-TEST_USER_PASSWORD=your-test-user-password
-```
-
-These can be set in the `.env` file in the project root.
+- Make sure ENABLE_TEST_CLEANUP=true is set in your environment when running tests
 
 ## Test isolation
 

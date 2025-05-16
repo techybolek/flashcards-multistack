@@ -8,7 +8,10 @@ import { OpenRouterService } from '../../../lib/openrouter';
 export const prerender = false;
 
 const commandSchema = z.object({
-  text: z.string().min(1000, { message: "Tekst jest za krótki" }).max(10000, { message: "Tekst jest za długi" })
+  text: z.string()
+    .min(1000, { message: "Text must be at least 1000 characters long" })
+    .max(10000, { message: "Text cannot exceed 10000 characters" })
+    .transform((text) => text.trim()) // Trim whitespace before validation
 });
 
 // Initialize OpenRouter service
@@ -179,7 +182,7 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
   try {
     body = await request.json();
   } catch (e) {
-    return new Response(JSON.stringify({ error: 'Nieprawidłowy format JSON' }), {
+    return new Response(JSON.stringify({ error: 'Invalid JSON format' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -188,7 +191,11 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
   // Validate request body
   const parseResult = commandSchema.safeParse(body);
   if (!parseResult.success) {
-    return new Response(JSON.stringify({ error: parseResult.error.issues }), {
+    console.log('Generate API - parseResult.error.errors', parseResult.error.errors);
+    return new Response(JSON.stringify({ 
+      error: parseResult.error.errors[0].message,
+      details: parseResult.error.errors
+    }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -196,13 +203,13 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
 
   try {
     // Calculate text hash for deduplication
-    const sourceTextHash = calculateTextHash(body.text);
+    const sourceTextHash = calculateTextHash(parseResult.data.text); // Use validated and trimmed text
     
     // Generate flashcards using AI
-    const aiResponse = await generateFlashcards(body.text);
+    const aiResponse = await generateFlashcards(parseResult.data.text);
     
     // Generate a title for this set of flashcards
-    const generationName = await generateTitleForText(body.text);
+    const generationName = await generateTitleForText(parseResult.data.text);
     
     // Save generation record to database
     const { data: generationData, error: generationError } = await supabase
@@ -211,7 +218,7 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
         user_id: locals.user.id,
         model: 'deepseek-reasoner',
         source_text_hash: sourceTextHash,
-        source_text_length: body.text.length,
+        source_text_length: parseResult.data.text.length,
         generated_count: aiResponse.stats.generated_count,
         generation_duration: aiResponse.stats.generation_duration,
         accepted_unedited_count: 0,
@@ -252,8 +259,8 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
         .insert({
           user_id: locals.user.id,
           model: 'deepseek-reasoner',
-          source_text_hash: calculateTextHash(body.text),
-          source_text_length: body.text.length,
+          source_text_hash: calculateTextHash(parseResult.data.text),
+          source_text_length: parseResult.data.text.length,
           error_code: 'GENERATION_ERROR',
           error_message: error instanceof Error ? error.message : String(error)
         });
