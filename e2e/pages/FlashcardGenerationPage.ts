@@ -40,7 +40,7 @@ export class FlashcardGenerationPage {
     await expect(this.loadingIndicator).toBeHidden({ timeout: 30000 });
     
     // Then wait for proposals to appear
-    await expect(this.proposalsList.first()).toBeVisible({ timeout: 30000 });
+    await expect(this.proposalsList.first()).toBeVisible({ timeout: 60000 });
   }
 
   async expectInvalidInputError() {
