@@ -93,7 +93,7 @@ test.describe('Flashcard Generation Page', () => {
     await expect(flashcardPage.generateButton).toBeVisible();
   });
 
-  test.only('should handle flashcard generation process', async ({ page }) => {
+  test('should handle flashcard generation process', async ({ page }) => {
     // Login first
     await authPage.goto();
     await authPage.login(TEST_USER_EMAIL!, TEST_USER_PASSWORD!);
