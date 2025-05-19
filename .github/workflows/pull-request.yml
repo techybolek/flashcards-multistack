@@ -8,11 +8,41 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run linter
+        run: npm run lint
+
+  unit-test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run unit tests
+        run: npm run test
+
   e2e-test:
     name: E2E Tests
     runs-on: ubuntu-latest
     environment: test
-    
+    needs: [lint]
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
@@ -20,10 +50,8 @@ jobs:
       TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
       TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
       NODE_ENV: test
-      
     steps:
       - uses: actions/checkout@v4
-      
       - name: Debug Environment Variables
         run: |
           echo "=== Environment Variable Status ==="
@@ -33,29 +61,23 @@ jobs:
           echo "TEST_USER_EMAIL is set: $([[ -n "$TEST_USER_EMAIL" ]] && echo 'yes' || echo 'no')"
           echo "TEST_USER_PASSWORD is set: $([[ -n "$TEST_USER_PASSWORD" ]] && echo 'yes' || echo 'no')"
           echo "NODE_ENV is: $NODE_ENV"
-          
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-          
       - name: Install dependencies
         run: npm ci
-        
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-        
       - name: Build application
         run: npm run build
-        
       - name: Start application
         run: |
           echo "Starting application with environment variables..."
           env | sort
           DEBUG=* ASTRO_LOG_LEVEL=debug npm run preview 2>&1 | tee server-output.log &
           echo $! > server.pid
-          
       - name: Wait for app to be ready
         run: |
           echo "Waiting for app to be ready..."
@@ -75,18 +97,14 @@ jobs:
             sleep 2
             timeout=$((timeout - 2))
           done
-          
           echo "=== Testing test-page endpoint ==="
           curl -v http://localhost:3000/test-page 2>&1 | tee test-page-response.log
-          
           echo "=== Recent server output ==="
           tail -n 50 server-output.log
-          
       - name: Run E2E tests
         run: npm run test:e2e
         env:
           DEBUG: pw:api*
-          
       - name: Upload debug artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -101,10 +119,10 @@ jobs:
             npm-debug.log*
 
   status-comment:
-    needs: [e2e-test]
+    needs: [e2e-test, unit-test]
     name: PR Status Comment
     runs-on: ubuntu-latest
-    if: always()
+    if: github.event_name == 'pull_request'
     
     steps:
       - name: Download all workflow run artifacts

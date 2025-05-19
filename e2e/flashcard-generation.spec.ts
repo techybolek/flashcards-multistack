@@ -173,8 +173,10 @@ test.describe('Flashcard Generation Page', () => {
     // Generate the flashcards
     await flashcardPage.generate();
     
+    console.log('Starting to wait for proposals...');
     // Wait for proposals to be loaded
     await flashcardPage.waitForProposals();
+    console.log('Proposals loaded successfully');
     
     // Get the first proposal
     const firstProposal = await flashcardPage.getFirstProposal();
