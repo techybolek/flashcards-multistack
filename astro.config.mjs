@@ -14,7 +14,8 @@ export default defineConfig({
   adapter: node({
     mode: "standalone",
   }),
-  experimental: {
-    session: true
+  session: {
+    // Using filesystem driver for Node.js adapter
+    driver: "fs"
   }
 });
