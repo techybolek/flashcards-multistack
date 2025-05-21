@@ -93,4 +93,10 @@ export interface Generation {
 
 export type GenerationResponse = {
   generations: Generation[];
-}; 
+};
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+} 
