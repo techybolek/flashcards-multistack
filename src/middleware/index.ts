@@ -1,11 +1,23 @@
 import type { MiddlewareHandler } from 'astro';
 import { createServerSupabaseClient } from '../lib/supabase';
 
-// Define routes that require authentication
-const PROTECTED_ROUTES = ['/generate', '/api/generations'];
-
 // Define routes that are always public
-const PUBLIC_ROUTES = ['/auth/login', '/auth/register', '/auth/callback', '/', '/about'];
+const PUBLIC_ROUTES = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/callback',
+  '/',
+  '/about',
+  '/test-page'
+];
+
+// Define API routes that should be public
+const PUBLIC_API_ROUTES = [
+  '/api/auth/login',
+  '/api/auth/register',
+  '/api/auth/recover',
+  '/api/auth/logout'
+];
 
 export const onRequest: MiddlewareHandler = async (context, next) => {
   // Create server client with cookie support
@@ -26,11 +38,34 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 
   // Check if the current path requires authentication
   const currentPath = new URL(context.request.url).pathname;
-  const isProtectedRoute = PROTECTED_ROUTES.some(route => currentPath.startsWith(route));
+  
+  // Check if this is an API route
+  const isApiRoute = currentPath.startsWith('/api/');
+  
+  // Check if route is public
   const isPublicRoute = PUBLIC_ROUTES.some(route => currentPath === route);
+  const isPublicApiRoute = PUBLIC_API_ROUTES.some(route => currentPath === route);
 
-  // If it's a protected route and there's no session, redirect to login
-  if (isProtectedRoute && !session && !isPublicRoute) {
+  // Allow public routes and public API routes to proceed
+  if (isPublicRoute || isPublicApiRoute) {
+    return next();
+  }
+
+  // For API routes that aren't public, return 401 instead of redirecting
+  if (isApiRoute && !session) {
+    return new Response(JSON.stringify({ 
+      status: 'error',
+      error: 'Unauthorized'
+    }), { 
+      status: 401,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  }
+
+  // For non-API routes that aren't public, redirect to login if no session
+  if (!session) {
     return context.redirect('/auth/login');
   }
   
