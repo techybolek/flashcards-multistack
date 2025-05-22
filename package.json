@@ -23,6 +23,7 @@
     "test:openrouter": "vite-node src/scripts/test-openrouter.ts"
   },
   "dependencies": {
+    "@astrojs/netlify": "^6.3.4",
     "@astrojs/node": "^9.2.2",
     "@astrojs/react": "4.2.7",
     "@astrojs/sitemap": "3.4.0",
