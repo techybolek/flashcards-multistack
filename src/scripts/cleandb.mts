@@ -1,11 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
+import { dirname } from 'path';
 import { loadEnv } from 'vite';
 
 // Load environment variables using Vite's loadEnv
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+dirname(__filename); // Used to get current directory context
 const env = loadEnv('', process.cwd(), '');
 
 // Create Supabase client

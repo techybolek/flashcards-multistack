@@ -1,6 +1,8 @@
 /** @type {import('tailwindcss').Config} */
+// eslint-disable-next-line @typescript-eslint/no-require-imports, no-undef
 const tailwindAnimate = require("tailwindcss-animate");
 
+// eslint-disable-next-line no-undef
 module.exports = {
   darkMode: ['class'],
   content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
