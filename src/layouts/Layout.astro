@@ -5,9 +5,10 @@ import UserInfo from '../components/UserInfo';
 interface Props {
 	title: string;
 	isAuthPage?: boolean;
+	hideHeader?: boolean;
 }
 
-const { title, isAuthPage = false } = Astro.props;
+const { title, isAuthPage = false, hideHeader = false } = Astro.props;
 
 // Get user session if not an auth page
 let user;
@@ -45,12 +46,17 @@ if (!isAuthPage) {
 			</main>
 		) : (
 			<>
-				{user && (
-					<div class="container mx-auto px-4 py-4">
-						<div class="flex justify-end">
-							<UserInfo client:load user={user} />
+				{!hideHeader && (
+					<header class="border-b dark:border-gray-700">
+						<div class="container mx-auto px-4 py-4">
+							<div class="flex justify-between items-center">
+								<a href="/" class="text-2xl font-bold text-gray-900 dark:text-white hover:text-primary transition-colors">
+									Flashcard Wizard
+								</a>
+								{user && <UserInfo client:load user={user} />}
+							</div>
 						</div>
-					</div>
+					</header>
 				)}
 				<slot />
 			</>
