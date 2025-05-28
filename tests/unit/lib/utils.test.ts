@@ -32,7 +32,8 @@ describe('cn utility function', () => {
   });
 
   it('should handle falsy values', () => {
-    const result = cn('text-lg', false && 'hidden', null, undefined, 0, '');
+    const shouldHide = false;
+    const result = cn('text-lg', shouldHide && 'hidden', null, undefined, 0, '');
     expect(result).toBe('text-lg');
   });
 }); 
