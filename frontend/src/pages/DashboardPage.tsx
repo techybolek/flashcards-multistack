@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
+import GenerationsTable from '@/components/GenerationsTable';
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
+  const [error, setError] = useState<string | null>(null);
 
   const handleLogout = async () => {
     try {
@@ -13,8 +16,12 @@ export default function DashboardPage() {
     }
   };
 
+  const handleError = (errorMessage: string) => {
+    setError(errorMessage);
+  };
+
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -25,27 +32,21 @@ export default function DashboardPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-6 border rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">Generate Flashcards</h2>
-          <p className="text-muted-foreground mb-4">
-            Create new flashcards from your text using AI
-          </p>
-          <Button asChild>
-            <Link to="/generate">Start Generating</Link>
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-700">{error}</p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setError(null)}
+            className="mt-2"
+          >
+            Dismiss
           </Button>
         </div>
+      )}
 
-        <div className="p-6 border rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">Previous Generations</h2>
-          <p className="text-muted-foreground mb-4">
-            View and manage your previous flashcard generations
-          </p>
-          <Button variant="outline" asChild>
-            <Link to="/generations">View History</Link>
-          </Button>
-        </div>
-      </div>
+      <GenerationsTable onError={handleError} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabaseService } from '@/lib/supabase';
 import type { 
   FlashcardDTO, 
   CreateFlashcardCommand, 
@@ -8,7 +8,7 @@ import type { TablesInsert } from '@/types/database.types';
 
 export class FlashcardService {
   async getFlashcards(userId: string): Promise<FlashcardDTO[]> {
-    const { data: flashcards, error } = await supabase
+    const { data: flashcards, error } = await supabaseService
       .from('flashcards')
       .select('*')
       .eq('user_id', userId);
@@ -21,7 +21,7 @@ export class FlashcardService {
   }
 
   async getFlashcard(id: number, userId: string): Promise<FlashcardDTO> {
-    const { data: flashcard, error } = await supabase
+    const { data: flashcard, error } = await supabaseService
       .from('flashcards')
       .select('*')
       .eq('id', id)
@@ -46,7 +46,7 @@ export class FlashcardService {
       generation_id: generation_id !== undefined ? Number(generation_id) : null
     };
 
-    const { data: newFlashcard, error } = await supabase
+    const { data: newFlashcard, error } = await supabaseService
       .from('flashcards')
       .insert(flashcardToInsert)
       .select()
@@ -71,7 +71,7 @@ export class FlashcardService {
     if (back) updateData.back = back;
 
     // First check if the flashcard belongs to the user
-    const { data: existingFlashcard, error: checkError } = await supabase
+    const { data: existingFlashcard, error: checkError } = await supabaseService
       .from('flashcards')
       .select('id')
       .eq('id', id)
@@ -83,7 +83,7 @@ export class FlashcardService {
     }
 
     // Update the flashcard
-    const { data: updatedFlashcard, error } = await supabase
+    const { data: updatedFlashcard, error } = await supabaseService
       .from('flashcards')
       .update(updateData)
       .eq('id', id)
@@ -100,7 +100,7 @@ export class FlashcardService {
 
   async deleteFlashcard(id: number, userId: string): Promise<void> {
     // First check if the flashcard belongs to the user
-    const { data: existingFlashcard, error: checkError } = await supabase
+    const { data: existingFlashcard, error: checkError } = await supabaseService
       .from('flashcards')
       .select('id')
       .eq('id', id)
@@ -112,7 +112,7 @@ export class FlashcardService {
     }
 
     // Delete the flashcard
-    const { error } = await supabase
+    const { error } = await supabaseService
       .from('flashcards')
       .delete()
       .eq('id', id)
@@ -125,7 +125,7 @@ export class FlashcardService {
 
   async patchFlashcard(id: number, front: string, back: string, userId: string): Promise<void> {
     // Verify user owns this flashcard by checking the generation
-    const { data: flashcard, error: flashcardError } = await supabase
+    const { data: flashcard, error: flashcardError } = await supabaseService
       .from('flashcards')
       .select('generation_id')
       .eq('id', id)
@@ -136,7 +136,7 @@ export class FlashcardService {
     }
 
     // Verify user owns the generation
-    const { data: generation, error: generationError } = await supabase
+    const { data: generation, error: generationError } = await supabaseService
       .from('generations')
       .select('user_id')
       .eq('id', flashcard.generation_id!)
@@ -147,7 +147,7 @@ export class FlashcardService {
     }
 
     // Update the flashcard
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseService
       .from('flashcards')
       .update({ front, back })
       .eq('id', id);
@@ -164,7 +164,7 @@ export class FlashcardService {
       user_id: userId
     }));
 
-    const { error } = await supabase
+    const { error } = await supabaseService
       .from('flashcards')
       .insert(flashcardsWithUserId);
 

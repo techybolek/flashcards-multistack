@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabaseService } from '@/lib/supabase';
 import { OpenRouterService } from '@/lib/openrouter';
 import { createHash } from 'crypto';
 import type { 
@@ -12,6 +12,7 @@ export class GenerationService {
   private openRouterService: OpenRouterService;
 
   constructor() {
+    console.log('OPENROUTER_API_KEY:', process.env.OPENROUTER_API_KEY);
     this.openRouterService = new OpenRouterService({
       apiKey: process.env.OPENROUTER_API_KEY || '',
       defaultModel: 'gpt-4o-mini',
@@ -34,8 +35,8 @@ export class GenerationService {
       // Generate a title for this set of flashcards
       const generationName = await this.generateTitleForText(text);
       
-      // Save generation record to database
-      const { data: generationData, error: generationError } = await supabase
+      // Save generation record to database using service client
+      const { data: generationData, error: generationError } = await supabaseService
         .from('generations')
         .insert({
           user_id: userId,
@@ -69,7 +70,7 @@ export class GenerationService {
       
       // Log error to generation_error_logs table
       try {
-        await supabase
+        await supabaseService
           .from('generation_error_logs')
           .insert({
             user_id: userId,
@@ -88,7 +89,7 @@ export class GenerationService {
   }
 
   async getGenerations(userId: string) {
-    const { data: generations, error: generationsError } = await supabase
+    const { data: generations, error: generationsError } = await supabaseService
       .from('generations')
       .select('id, created_at, generated_count, generation_name')
       .eq('user_id', userId)
@@ -103,7 +104,7 @@ export class GenerationService {
   }
 
   async getGeneration(id: number, userId: string) {
-    const { data: generation, error } = await supabase
+    const { data: generation, error } = await supabaseService
       .from('generations')
       .select('*')
       .eq('id', id)
@@ -121,7 +122,7 @@ export class GenerationService {
     // First verify the generation belongs to the user
     const generation = await this.getGeneration(generationId, userId);
     
-    const { data: flashcards, error } = await supabase
+    const { data: flashcards, error } = await supabaseService
       .from('flashcards')
       .select('*')
       .eq('generation_id', generationId)
