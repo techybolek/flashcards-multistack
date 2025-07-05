@@ -47,7 +47,7 @@
    - Nested routing within Layout component
    - Maintains consistent UI across routes
 
-## Data Model
+## Data Models
 
 ### Core Flashcard Structure
 ```typescript
@@ -59,7 +59,71 @@ type FlashcardDTO = {
   created_at: string;
   updated_at: string;
   generation_id?: number | null;
+  user_id: string;
 };
+```
+
+### Generation Error Logs
+```typescript
+type GenerationErrorLog = {
+  id: number;
+  error_code: string;
+  error_message: string;
+  model: string;
+  source_text_hash: string;
+  source_text_length: number;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+};
+```
+
+### API Response Structure
+```typescript
+interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+```
+
+### Pagination Structure
+```typescript
+type PaginationDTO = {
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
+};
+```
+
+## API Structure
+
+### Authentication Endpoints
+```
+- POST   /api/auth/login     - User login
+- POST   /api/auth/register  - User registration
+- POST   /api/auth/recover   - Password recovery
+```
+
+### Flashcard Endpoints
+```
+- GET    /api/flashcards            - List user's flashcards
+- POST   /api/flashcards            - Create single flashcard
+- POST   /api/flashcards/bulk       - Create multiple flashcards
+```
+
+### Generation Endpoints
+```
+- GET    /api/generations           - List user's generations
+- POST   /api/generations           - Create new generation
+- GET    /api/generations/:id/flashcards - Get flashcards for generation
+```
+
+### Development Endpoints
+```
+- GET    /api/tests                 - Test endpoints (dev only)
 ```
 
 ## Key Features
@@ -70,6 +134,7 @@ type FlashcardDTO = {
 - Delete flashcards
 - View flashcards in a list format
 - Each flashcard has a front (question) and back (answer)
+- Bulk creation support
 
 ### AI-Powered Generation
 - Uses OpenRouter API (with GPT-4 mini model)
@@ -80,45 +145,25 @@ type FlashcardDTO = {
   - 'manual': User-created
   - 'ai-full': AI-generated, unedited
   - 'ai-edited': AI-generated, user-modified
-
-### Generation Management
-- Tracks generation metadata:
-  - Source text hash for deduplication
-  - Generation duration
-  - Number of cards generated
-  - Acceptance stats (edited vs. unedited)
-- Groups flashcards by generation
+- Rate limiting and caching for API calls
+- Error logging and recovery
 
 ## Security Features
 - User authentication required
 - Per-user data isolation
 - Access control checks on all operations
 - Ownership verification before modifications
+- Input validation using Zod schemas
+- Helmet middleware for security headers
+- CORS protection
+- Response compression middleware
+- Rate limiting for OpenRouter API calls
 
 ## Frontend Components
 - GenerationDetailPage: Displays and manages sets of flashcards
 - GeneratePage: Interface for AI generation
 - GenerationsTable: Lists all flashcard generations
 - Rich UI components using shadcn/ui library
-
-## API Structure
-
-### Endpoints
-```
-- GET    /api/flashcards
-- GET    /api/flashcards/:id
-- POST   /api/flashcards
-- POST   /api/flashcards/bulk
-- GET    /api/generations
-- POST   /api/generations
-- GET    /api/generations/:id/flashcards
-```
-
-## Error Handling
-- Comprehensive error handling throughout
-- User-friendly error messages
-- Proper HTTP status codes
-- Input validation on all endpoints
 
 ## Technical Features
 - TypeScript throughout for type safety
@@ -127,4 +172,14 @@ type FlashcardDTO = {
 - Middleware for authentication
 - Supabase for real-time database capabilities
 - Bulk operations support
-- Pagination support for large datasets 
+- Pagination support for large datasets
+- OpenRouter API integration with:
+  - Response caching
+  - Token bucket rate limiting
+  - Error handling and logging
+  - Model selection
+  - Circuit breaker pattern
+- Development-only test endpoints
+- Comprehensive error handling
+- Input validation with Zod
+- Environment-based configuration 
