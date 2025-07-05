@@ -1,1 +1,0 @@
-Prepare the environment for deploying unit tests and e2e tests using @tech-stack.md, @playwright-e2e-testing.mdc and @vitest-unit-testing.mdc

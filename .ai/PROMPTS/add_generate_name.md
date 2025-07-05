@@ -1,1 +1,0 @@
-Create a plan to generate a short, no more than 40 char generation title. This will serve as a generation name to help the user identify what this generation is for. The generated title should be displayed in the UI together wit hteh generated flashcard proposals.
