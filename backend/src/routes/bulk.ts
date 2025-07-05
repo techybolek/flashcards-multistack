@@ -23,10 +23,10 @@ router.post('/', async (req, res) => {
 
     // Validate each flashcard in the array
     for (const flashcard of body) {
-      if (!flashcard.front || !flashcard.back) {
+      if (!flashcard.front || !flashcard.back || !flashcard.source || flashcard.display_order === undefined) {
         return res.status(400).json({
           success: false,
-          error: "Each flashcard must include a 'front' and a 'back'"
+          error: "Each flashcard must include 'front', 'back', 'source', and 'display_order'"
         });
       }
     }
@@ -35,7 +35,8 @@ router.post('/', async (req, res) => {
       front: flashcard.front,
       back: flashcard.back,
       source: flashcard.source || 'ai-full',
-      generation_id: flashcard.generation_id
+      generation_id: flashcard.generation_id,
+      display_order: Number(flashcard.display_order)
     }));
 
     await flashcardService.createBulkFlashcards(flashcards, req.user!.id);

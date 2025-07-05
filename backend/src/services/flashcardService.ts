@@ -36,14 +36,15 @@ export class FlashcardService {
   }
 
   async createFlashcard(command: CreateFlashcardCommand, userId: string): Promise<FlashcardDTO> {
-    const { front, back, source, generation_id } = command;
+    const { front, back, source, generation_id, display_order } = command;
 
     const flashcardToInsert: TablesInsert<'flashcards'> = {
       front,
       back,
       source,
       user_id: userId,
-      generation_id: generation_id !== undefined ? Number(generation_id) : null
+      generation_id: generation_id !== undefined ? Number(generation_id) : null,
+      display_order
     };
 
     const { data: newFlashcard, error } = await supabaseService
@@ -64,11 +65,12 @@ export class FlashcardService {
   }
 
   async updateFlashcard(id: number, command: UpdateFlashcardCommand, userId: string): Promise<FlashcardDTO> {
-    const { front, back } = command;
+    const { front, back, source } = command;
 
-    const updateData: Record<string, string> = {};
+    const updateData: Record<string, any> = {};
     if (front) updateData.front = front;
     if (back) updateData.back = back;
+    if (source) updateData.source = source;
 
     // First check if the flashcard belongs to the user
     const { data: existingFlashcard, error: checkError } = await supabaseService
@@ -161,7 +163,8 @@ export class FlashcardService {
     // Add user_id to each flashcard
     const flashcardsWithUserId = flashcards.map(flashcard => ({
       ...flashcard,
-      user_id: userId
+      user_id: userId,
+      display_order: Number(flashcard.display_order)
     }));
 
     const { error } = await supabaseService

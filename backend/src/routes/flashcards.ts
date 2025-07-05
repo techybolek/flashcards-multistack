@@ -74,13 +74,13 @@ router.get('/:id', async (req, res) => {
 // POST /api/flashcards
 router.post('/', async (req, res) => {
   try {
-    const { front, back, source, generation_id } = req.body;
+    const { front, back, source, generation_id, display_order } = req.body;
 
     // Validate required fields
-    if (!front || !back || !source) {
+    if (!front || !back || !source || display_order === undefined) {
       return res.status(400).json({
         success: false,
-        error: "Fields 'front', 'back', and 'source' are required"
+        error: "Fields 'front', 'back', 'source', and 'display_order' are required"
       });
     }
 
@@ -88,7 +88,8 @@ router.post('/', async (req, res) => {
       front,
       back,
       source,
-      generation_id: generation_id !== undefined ? Number(generation_id) : null
+      generation_id: generation_id !== undefined ? Number(generation_id) : null,
+      display_order: Number(display_order)
     };
 
     const newFlashcard = await flashcardService.createFlashcard(command, req.user!.id);
@@ -128,7 +129,7 @@ router.put('/:id', async (req, res) => {
       });
     }
 
-    const { front, back } = req.body;
+    const { front, back, source } = req.body;
     if (!front && !back) {
       return res.status(400).json({
         success: false,
@@ -139,7 +140,7 @@ router.put('/:id', async (req, res) => {
     const command: UpdateFlashcardCommand = {
       front,
       back,
-      source: 'ai-edited' // When updating, it becomes ai-edited
+      source: source || 'ai-edited' // Use provided source or default to ai-edited
     };
 
     const updatedFlashcard = await flashcardService.updateFlashcard(numericId, command, req.user!.id);

@@ -40,6 +40,7 @@ export type FlashcardDTO = {
   created_at: string;
   updated_at: string;
   generation_id?: number | null; // Optional field for AI generated flashcards
+  display_order: number;
 };
 
 // Command model for creating a flashcard. Used in both single and bulk flashcard creation.
@@ -48,6 +49,7 @@ export type CreateFlashcardCommand = {
   back: string;
   source: 'manual' | 'ai-full' | 'ai-edited';
   generation_id?: number | null; // For AI generated flashcards, this field is populated; manual flashcards may leave it null.
+  display_order: number;
 };
 
 // Command model for updating a flashcard. Note: Only 'manual' or 'ai-edited' sources are allowed for updates.
