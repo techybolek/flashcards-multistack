@@ -1,1 +1,0 @@
-Create a new page dashboard. The dashboard will list all generations for the user. The list should include generation id, created timestamp. IF the required API endpoint does not exist yet, create one.
