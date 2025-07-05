@@ -163,6 +163,12 @@ class ApiClient {
     return response.data!;
   }
 
+  async deleteGeneration(id: number): Promise<void> {
+    await this.request(`/api/generations/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Test cleanup endpoint
   async cleanupTestData(): Promise<any> {
     const response = await this.request('/api/tests/cleanup', {

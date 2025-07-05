@@ -1,5 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database.types';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
@@ -9,21 +13,12 @@ if (!supabaseUrl || !supabaseKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
-// Create a standard supabase client for regular operations
+if (!supabaseServiceKey) {
+  throw new Error('Missing SUPABASE_SERVICE_KEY environment variable');
+}
+
+// Create a standard supabase client for non-auth operations
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
-// Create a service client for admin operations (bypassing RLS)
-export const supabaseAdmin = supabaseServiceKey 
-  ? createClient<Database>(supabaseUrl, supabaseServiceKey)
-  : null;
-
-// Create a client for a specific user (for API routes)
-export function createUserSupabaseClient(accessToken: string) {
-  return createClient<Database>(supabaseUrl!, supabaseKey!, {
-    global: {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    },
-  });
-}
+// Create a service client that bypasses RLS (for server-side operations)
+export const supabaseService = createClient<Database>(supabaseUrl, supabaseServiceKey);

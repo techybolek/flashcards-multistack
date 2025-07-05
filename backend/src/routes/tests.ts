@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { supabase } from '@/lib/supabase';
+import { supabaseService } from '@/lib/supabase';
 import { authenticate } from '@/middleware/auth';
 import type { ApiResponse } from '@/types';
 
@@ -30,17 +30,17 @@ router.post('/cleanup', async (req, res) => {
     const userId = req.user!.id;
 
     // Delete records from all three tables in a specific order to respect foreign key constraints
-    const { error: flashcardsError, count: flashcardsCount } = await supabase
+    const { error: flashcardsError, count: flashcardsCount } = await supabaseService
       .from('flashcards')
       .delete({ count: 'exact' })
       .eq('user_id', userId);
 
-    const { error: generationsError, count: generationsCount } = await supabase
+    const { error: generationsError, count: generationsCount } = await supabaseService
       .from('generations')
       .delete({ count: 'exact' })
       .eq('user_id', userId);
 
-    const { error: errorLogsError, count: errorLogsCount } = await supabase
+    const { error: errorLogsError, count: errorLogsCount } = await supabaseService
       .from('generation_error_logs')
       .delete({ count: 'exact' })
       .eq('user_id', userId);
