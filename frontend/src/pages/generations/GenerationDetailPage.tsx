@@ -44,7 +44,15 @@ export default function GenerationDetailPage() {
   const handleAddSubmit = async (command: CreateFlashcardCommand) => {
     try {
       setIsAddingCard(true);
-      await handleAdd(command);
+      // Calculate next display order from existing flashcards
+      const nextDisplayOrder = flashcards.length > 0 
+        ? Math.max(...flashcards.map(f => f.display_order)) + 1 
+        : 1;
+      
+      await handleAdd({
+        ...command,
+        display_order: nextDisplayOrder
+      });
       setShowAddForm(false);
     } finally {
       setIsAddingCard(false);

@@ -12,70 +12,69 @@ interface NewFlashcardFormProps {
   isSubmitting?: boolean;
 }
 
-export function NewFlashcardForm({
-  generationId,
-  onSubmit,
-  onCancel,
-  isSubmitting = false
-}: NewFlashcardFormProps) {
-  const [form, setForm] = useState({ front: '', back: '' });
+export function NewFlashcardForm({ generationId, onSubmit, onCancel, isSubmitting = false }: NewFlashcardFormProps) {
+  const [front, setFront] = useState('');
+  const [back, setBack] = useState('');
 
-  const handleSubmit = async () => {
-    if (!form.front.trim() || !form.back.trim()) return;
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!front.trim() || !back.trim()) return;
 
     const command: CreateFlashcardCommand = {
-      front: form.front,
-      back: form.back,
+      front: front.trim(),
+      back: back.trim(),
       source: 'manual',
-      generation_id: generationId
+      generation_id: generationId,
+      display_order: 1 // This will be overridden by GenerationDetailPage
     };
 
-    await onSubmit(command);
-    setForm({ front: '', back: '' }); // Reset form after successful submission
+    onSubmit(command);
+    setFront('');
+    setBack('');
   };
 
   return (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle>Add New Flashcard</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="new-front">Question (Front)</Label>
-            <Textarea
-              id="new-front"
-              value={form.front}
-              onChange={(e) => setForm(prev => ({ ...prev, front: e.target.value }))}
-              rows={4}
-              className="resize-none"
-              placeholder="Enter the question..."
-            />
+    <form onSubmit={handleSubmit} className="mb-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Add New Flashcard</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="new-front">Question (Front)</Label>
+              <Textarea
+                id="new-front"
+                value={front}
+                onChange={(e) => setFront(e.target.value)}
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+            <div>
+              <Label htmlFor="new-back">Answer (Back)</Label>
+              <Textarea
+                id="new-back"
+                value={back}
+                onChange={(e) => setBack(e.target.value)}
+                rows={4}
+                className="resize-none"
+              />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="new-back">Answer (Back)</Label>
-            <Textarea
-              id="new-back"
-              value={form.back}
-              onChange={(e) => setForm(prev => ({ ...prev, back: e.target.value }))}
-              rows={4}
-              className="resize-none"
-              placeholder="Enter the answer..."
-            />
+          <div className="flex justify-end gap-2 mt-4">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button 
+              type="submit"
+              disabled={isSubmitting || !front.trim() || !back.trim()}
+            >
+              {isSubmitting ? 'Adding...' : 'Add Flashcard'}
+            </Button>
           </div>
-        </div>
-        <div className="flex gap-2 mt-4">
-          <Button 
-            onClick={handleSubmit} 
-            disabled={isSubmitting || !form.front.trim() || !form.back.trim()}
-          >
-            {isSubmitting ? 'Adding...' : 'Add Flashcard'}
-          </Button>
-          <Button variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </form>
   );
 } 
