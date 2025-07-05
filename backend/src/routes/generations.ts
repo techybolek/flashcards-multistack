@@ -159,4 +159,38 @@ router.get('/:id/flashcards', async (req, res) => {
   }
 });
 
+// DELETE /api/generations/:id
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const numericId = parseInt(id, 10);
+    
+    if (isNaN(numericId)) {
+      return res.status(400).json({
+        success: false,
+        error: "Parameter 'id' must be a valid number"
+      });
+    }
+
+    await generationService.deleteGeneration(numericId, req.user!.id);
+
+    res.json({
+      success: true,
+      data: null
+    });
+  } catch (error) {
+    console.error('Error deleting generation:', error);
+    if (error instanceof Error && error.message === 'Generation not found') {
+      return res.status(404).json({
+        success: false,
+        error: 'Generation not found'
+      });
+    }
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error'
+    });
+  }
+});
+
 export default router;

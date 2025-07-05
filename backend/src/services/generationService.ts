@@ -266,4 +266,31 @@ export class GenerationService {
   private calculateTextHash(text: string): string {
     return createHash('sha256').update(text).digest('hex');
   }
+
+  async deleteGeneration(id: number, userId: string): Promise<void> {
+    // First verify the generation belongs to the user
+    const generation = await this.getGeneration(id, userId);
+    
+    // Delete associated flashcards first (due to foreign key constraints)
+    const { error: flashcardsError } = await supabaseService
+      .from('flashcards')
+      .delete()
+      .eq('generation_id', id)
+      .eq('user_id', userId);
+
+    if (flashcardsError) {
+      throw new Error('Error deleting associated flashcards');
+    }
+
+    // Delete the generation
+    const { error: generationError } = await supabaseService
+      .from('generations')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', userId);
+
+    if (generationError) {
+      throw new Error('Error deleting generation');
+    }
+  }
 }
