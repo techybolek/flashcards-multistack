@@ -91,7 +91,13 @@ export class GenerationService {
   async getGenerations(userId: string) {
     const { data: generations, error: generationsError } = await supabaseService
       .from('generations')
-      .select('id, created_at, generated_count, generation_name')
+      .select(`
+        id,
+        created_at,
+        generated_count,
+        generation_name,
+        flashcard_count:flashcards(count)
+      `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
@@ -100,7 +106,13 @@ export class GenerationService {
       throw new Error('Failed to load generations');
     }
 
-    return { generations };
+    // Transform the count from { count: X } to just X
+    const transformedGenerations = generations?.map(gen => ({
+      ...gen,
+      flashcard_count: gen.flashcard_count?.[0]?.count || 0
+    }));
+
+    return { generations: transformedGenerations };
   }
 
   async getGeneration(id: number, userId: string) {
