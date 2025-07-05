@@ -14,7 +14,7 @@ import {
 
 interface Generation {
   id: number;
-  name: string;
+  generation_name: string;
   created_at: string;
   updated_at: string;
   user_id: string;
@@ -129,7 +129,7 @@ export default function GenerationsTable({ onError }: GenerationsTableProps) {
                     to={`/generations/${generation.id}`}
                     className="font-medium hover:underline"
                   >
-                    {generation.name}
+                    {generation.generation_name}
                   </Link>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
@@ -157,7 +157,7 @@ export default function GenerationsTable({ onError }: GenerationsTableProps) {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDeleteGeneration(generation.id, generation.name)}
+                      onClick={() => handleDeleteGeneration(generation.id, generation.generation_name)}
                       disabled={deletingId === generation.id}
                     >
                       {deletingId === generation.id ? 'Deleting...' : 'Delete'}
