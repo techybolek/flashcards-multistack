@@ -7,9 +7,7 @@ import dotenv from 'dotenv';
 // Import routes
 import authRouter from '@/routes/auth';
 import flashcardsRouter from '@/routes/flashcards';
-import bulkRouter from '@/routes/bulk';
 import generationsRouter from '@/routes/generations';
-import testsRouter from '@/routes/tests';
 
 // Load environment variables
 dotenv.config();
@@ -34,10 +32,8 @@ app.get('/health', (req, res) => {
 
 // Routes
 app.use('/api/auth', authRouter);
-app.use('/api/flashcards/bulk', bulkRouter);
 app.use('/api/flashcards', flashcardsRouter);
 app.use('/api/generations', generationsRouter);
-app.use('/api/tests', testsRouter);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

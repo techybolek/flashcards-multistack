@@ -9,69 +9,6 @@ const flashcardService = new FlashcardService();
 // Apply authentication middleware to all routes
 router.use(authenticate);
 
-// GET /api/flashcards
-router.get('/', async (req, res) => {
-  try {
-    const flashcards = await flashcardService.getFlashcards(req.user!.id);
-
-    const response: ApiResponse = {
-      success: true,
-      data: flashcards
-    };
-
-    res.json(response);
-  } catch (error) {
-    console.error('Error retrieving flashcards:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Internal server error'
-    });
-  }
-});
-
-// GET /api/flashcards/:id
-router.get('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(400).json({
-        success: false,
-        error: "Parameter 'id' is required"
-      });
-    }
-
-    const numericId = parseInt(id, 10);
-    if (isNaN(numericId)) {
-      return res.status(400).json({
-        success: false,
-        error: "Parameter 'id' must be a valid number"
-      });
-    }
-
-    const flashcard = await flashcardService.getFlashcard(numericId, req.user!.id);
-
-    const response: ApiResponse = {
-      success: true,
-      data: flashcard
-    };
-
-    res.json(response);
-  } catch (error) {
-    console.error('Error retrieving flashcard:', error);
-    if (error instanceof Error && error.message === 'Flashcard not found') {
-      return res.status(404).json({
-        success: false,
-        error: 'Flashcard not found'
-      });
-    }
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Internal server error'
-    });
-  }
-});
-
-// POST /api/flashcards
 router.post('/', async (req, res) => {
   try {
     const { front, back, source, generation_id, display_order } = req.body;
@@ -208,54 +145,5 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// PATCH /api/flashcards/:id
-router.patch('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { front, back } = req.body;
-
-    if (!front || !back) {
-      return res.status(400).json({
-        success: false,
-        error: 'Front and back are required'
-      });
-    }
-
-    const numericId = parseInt(id, 10);
-    if (isNaN(numericId)) {
-      return res.status(400).json({
-        success: false,
-        error: "Parameter 'id' must be a valid number"
-      });
-    }
-
-    await flashcardService.patchFlashcard(numericId, front, back, req.user!.id);
-
-    const response: ApiResponse = {
-      success: true,
-      data: null
-    };
-
-    res.json(response);
-  } catch (error) {
-    console.error('Error patching flashcard:', error);
-    if (error instanceof Error && error.message === 'Flashcard not found') {
-      return res.status(404).json({
-        success: false,
-        error: 'Flashcard not found'
-      });
-    }
-    if (error instanceof Error && error.message === 'Unauthorized') {
-      return res.status(401).json({
-        success: false,
-        error: 'Unauthorized'
-      });
-    }
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Internal server error'
-    });
-  }
-});
 
 export default router;
