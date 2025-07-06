@@ -100,7 +100,7 @@ export class GenerationService {
       .single();
   }
   
-  async getGenerations(userId: string) {
+  async getGeneratins(userId: string) {
     // Manual filtering for security
     const { data, error } = await supabaseService
       .from('generations')

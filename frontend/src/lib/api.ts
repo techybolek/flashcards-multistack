@@ -89,17 +89,6 @@ class ApiClient {
     return response.data;
   }
 
-  // Flashcard endpoints
-  async getFlashcards(): Promise<FlashcardDTO[]> {
-    const response = await this.request<FlashcardDTO[]>('/api/flashcards');
-    return response.data!;
-  }
-
-  async getFlashcard(id: number): Promise<FlashcardDTO> {
-    const response = await this.request<FlashcardDTO>(`/api/flashcards/${id}`);
-    return response.data!;
-  }
-
   async createFlashcard(command: CreateFlashcardCommand): Promise<FlashcardDTO> {
     const response = await this.request<FlashcardDTO>('/api/flashcards', {
       method: 'POST',
@@ -121,20 +110,6 @@ class ApiClient {
   async deleteFlashcard(id: number): Promise<void> {
     await this.request(`/api/flashcards/${id}`, {
       method: 'DELETE',
-    });
-  }
-
-  async patchFlashcard(id: number, front: string, back: string): Promise<void> {
-    await this.request(`/api/flashcards/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ front, back }),
-    });
-  }
-
-  async createBulkFlashcards(flashcards: CreateFlashcardCommand[]): Promise<void> {
-    await this.request('/api/flashcards/bulk', {
-      method: 'POST',
-      body: JSON.stringify(flashcards),
     });
   }
 
@@ -177,14 +152,6 @@ class ApiClient {
     return response.data;
   }
 
-  // Test cleanup endpoint
-  async cleanupTestData(): Promise<any> {
-    const response = await this.request('/api/tests/cleanup', {
-      method: 'POST',
-    });
-
-    return response.data;
-  }
 }
 
 export const apiClient = new ApiClient();

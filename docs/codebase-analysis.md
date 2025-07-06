@@ -10,15 +10,15 @@
 
 ### Public Routes
 ```typescript
-- "/" - HomePage (Landing page)
-- "/auth/login" - LoginPage
-- "/auth/register" - RegisterPage
-- "/auth/recover" - RecoverPage
+- "/" - HomePage (Landing page with login/register or dashboard links)
+- "/auth/login" - LoginPage (Email/password login form)
+- "/auth/register" - RegisterPage (New user registration)
+- "/auth/recover" - RecoverPage (Password recovery flow)
 ```
 
 ### Protected Routes (require authentication)
 ```typescript
-- "/dashboard" - DashboardPage (Main user dashboard)
+- "/dashboard" - DashboardPage (Main user dashboard with generations list)
 - "/generate" - GeneratePage (AI flashcard generation interface)
 - "/generations/:id" - GenerationDetailPage (View/edit specific flashcard generation)
 ```
@@ -40,12 +40,15 @@
    - Stores auth token in localStorage
    - Auto-redirects to dashboard after login
    - Handles session persistence
+   - Email verification support
+   - Password recovery flow
 
 3. Navigation Features:
    - Uses React Router v6
    - BrowserRouter as the router implementation
    - Nested routing within Layout component
    - Maintains consistent UI across routes
+   - Toast notifications for user feedback
 
 ## Data Models
 
@@ -60,6 +63,7 @@ type FlashcardDTO = {
   updated_at: string;
   generation_id?: number | null;
   user_id: string;
+  display_order: number;
 };
 ```
 
@@ -85,45 +89,93 @@ interface ApiResponse<T = any> {
   data?: T;
   error?: string;
   message?: string;
-}
+  details?: any;
+};
 ```
 
-### Pagination Structure
+### Command Types
 ```typescript
-type PaginationDTO = {
-  total: number;
-  page: number;
-  limit: number;
-  pages: number;
-};
+interface CreateFlashcardCommand {
+  front: string;
+  back: string;
+  source: 'manual' | 'ai-full' | 'ai-edited';
+  generation_id: number | null;
+  display_order: number;
+}
+
+interface UpdateFlashcardCommand {
+  front?: string;
+  back?: string;
+  source?: 'manual' | 'ai-full' | 'ai-edited';
+}
+
+interface GenerateFlashcardsCommand {
+  text: string; // 1,000-10,000 characters
+}
 ```
 
 ## API Structure
 
 ### Authentication Endpoints
 ```
-- POST   /api/auth/login     - User login
-- POST   /api/auth/register  - User registration
-- POST   /api/auth/recover   - Password recovery
+POST /api/auth/login
+- Request: { email: string, password: string }
+- Response: { user: User, token: string, redirectTo: string }
+
+POST /api/auth/register
+- Request: { email: string, password: string, confirmPassword: string }
+- Response: { user: User, requiresEmailConfirmation: boolean, message: string }
+
+POST /api/auth/recover
+- Request: { email: string }
+- Response: { message: string }
+
+POST /api/auth/logout
+- Request: {}
+- Response: { success: true }
 ```
 
 ### Flashcard Endpoints
 ```
-- GET    /api/flashcards            - List user's flashcards
-- POST   /api/flashcards            - Create single flashcard
-- POST   /api/flashcards/bulk       - Create multiple flashcards
+GET /api/flashcards
+- Response: FlashcardDTO[]
+
+GET /api/flashcards/:id
+- Response: FlashcardDTO
+
+POST /api/flashcards
+- Request: CreateFlashcardCommand
+- Response: FlashcardDTO
+
+PUT /api/flashcards/:id
+- Request: UpdateFlashcardCommand
+- Response: FlashcardDTO
+
+DELETE /api/flashcards/:id
+- Response: { success: true }
 ```
 
 ### Generation Endpoints
 ```
-- GET    /api/generations           - List user's generations
-- POST   /api/generations           - Create new generation
-- GET    /api/generations/:id/flashcards - Get flashcards for generation
-```
+GET /api/generations
+- Response: { generations: Generation[], pagination: PaginationDTO }
 
-### Development Endpoints
-```
-- GET    /api/tests                 - Test endpoints (dev only)
+GET /api/generations/:id
+- Response: Generation
+
+GET /api/generations/:id/flashcards
+- Response: FlashcardDTO[]
+
+POST /api/generations
+- Request: GenerateFlashcardsCommand
+- Response: Generation
+
+PUT /api/generations/:id
+- Request: { flashcards: { front: string, back: string, source: 'ai-full' | 'ai-edited' }[] }
+- Response: FlashcardDTO[]
+
+DELETE /api/generations/:id
+- Response: { success: true }
 ```
 
 ## Key Features
@@ -135,6 +187,7 @@ type PaginationDTO = {
 - View flashcards in a list format
 - Each flashcard has a front (question) and back (answer)
 - Bulk creation support
+- Display order tracking
 
 ### AI-Powered Generation
 - Uses OpenRouter API (with GPT-4 mini model)
@@ -147,6 +200,7 @@ type PaginationDTO = {
   - 'ai-edited': AI-generated, user-modified
 - Rate limiting and caching for API calls
 - Error logging and recovery
+- Input validation and sanitization
 
 ## Security Features
 - User authentication required
@@ -158,12 +212,17 @@ type PaginationDTO = {
 - CORS protection
 - Response compression middleware
 - Rate limiting for OpenRouter API calls
+- Password complexity requirements
+- Email verification support
 
 ## Frontend Components
 - GenerationDetailPage: Displays and manages sets of flashcards
 - GeneratePage: Interface for AI generation
 - GenerationsTable: Lists all flashcard generations
 - Rich UI components using shadcn/ui library
+- Toast notifications for user feedback
+- Loading states and error handling
+- Form validation with react-hook-form
 
 ## Technical Features
 - TypeScript throughout for type safety
@@ -182,4 +241,5 @@ type PaginationDTO = {
 - Development-only test endpoints
 - Comprehensive error handling
 - Input validation with Zod
-- Environment-based configuration 
+- Environment-based configuration
+- Vite development server with API proxy 
