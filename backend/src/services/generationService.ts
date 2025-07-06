@@ -305,4 +305,49 @@ export class GenerationService {
       throw new Error('Error deleting generation');
     }
   }
+
+  async updateGeneration(id: number, userId: string, flashcards: Array<{ front: string; back: string; source: 'ai-full' | 'ai-edited' }>) {
+    // First verify the generation belongs to the user
+    const generation = await this.getGeneration(id, userId);
+    
+    // Start a transaction to ensure data consistency
+    const { data: updatedFlashcards, error: flashcardsError } = await supabaseService
+      .from('flashcards')
+      .insert(
+        flashcards.map((card, index) => ({
+          front: card.front,
+          back: card.back,
+          source: card.source,
+          generation_id: id,
+          user_id: userId,
+          display_order: index + 1 // Change to 1-based indexing
+        }))
+      )
+      .select();
+
+    if (flashcardsError) {
+      console.error('Error saving flashcards:', flashcardsError);
+      throw new Error('Failed to save flashcards');
+    }
+
+    // Update generation stats
+    const aiFullCount = flashcards.filter(card => card.source === 'ai-full').length;
+    const aiEditedCount = flashcards.filter(card => card.source === 'ai-edited').length;
+
+    const { error: updateError } = await supabaseService
+      .from('generations')
+      .update({
+        accepted_unedited_count: aiFullCount,
+        accepted_edited_count: aiEditedCount
+      })
+      .eq('id', id)
+      .eq('user_id', userId);
+
+    if (updateError) {
+      console.error('Error updating generation stats:', updateError);
+      throw new Error('Failed to update generation stats');
+    }
+
+    return updatedFlashcards;
+  }
 }

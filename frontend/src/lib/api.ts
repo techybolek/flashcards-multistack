@@ -169,6 +169,14 @@ class ApiClient {
     });
   }
 
+  async updateGeneration(id: number, data: { flashcards: Array<{ front: string; back: string; source: 'ai-full' | 'ai-edited' }> }) {
+    const response = await this.request<ApiResponse>(`/api/generations/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return response.data;
+  }
+
   // Test cleanup endpoint
   async cleanupTestData(): Promise<any> {
     const response = await this.request('/api/tests/cleanup', {

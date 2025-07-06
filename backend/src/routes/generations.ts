@@ -193,4 +193,62 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// PUT /api/generations/:id
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const numericId = parseInt(id, 10);
+    
+    if (isNaN(numericId)) {
+      return res.status(400).json({
+        success: false,
+        error: "Parameter 'id' must be a valid number"
+      });
+    }
+
+    // Validate request body
+    const updateSchema = z.object({
+      flashcards: z.array(z.object({
+        front: z.string().min(1, "Front side cannot be empty"),
+        back: z.string().min(1, "Back side cannot be empty"),
+        source: z.enum(['ai-full', 'ai-edited'])
+      }))
+    });
+
+    const parseResult = updateSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: parseResult.error.errors[0].message,
+        details: parseResult.error.errors
+      });
+    }
+
+    const updatedFlashcards = await generationService.updateGeneration(
+      numericId,
+      req.user!.id,
+      parseResult.data.flashcards
+    );
+
+    const response: ApiResponse = {
+      success: true,
+      data: updatedFlashcards
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error('Error updating generation:', error);
+    if (error instanceof Error && error.message === 'Generation not found') {
+      return res.status(404).json({
+        success: false,
+        error: 'Generation not found'
+      });
+    }
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error'
+    });
+  }
+});
+
 export default router;
