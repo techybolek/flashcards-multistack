@@ -8,13 +8,16 @@ import type {
   FlashcardProposalDTO
 } from '@/types';
 
+//nst DEFAULT_MODEL = 'gpt-4o-mini';
+const DEFAULT_MODEL = 'google/gemini-2.5-pro';
+
 export class GenerationService {
   private openRouterService: OpenRouterService;
 
   constructor() {
     this.openRouterService = new OpenRouterService({
       apiKey: process.env.OPENROUTER_API_KEY || '',
-      defaultModel: 'gpt-4o-mini'
+      defaultModel: DEFAULT_MODEL
     });
   }
 
@@ -36,7 +39,7 @@ export class GenerationService {
         .from('generations')
         .insert({
           user_id: userId,
-          model: 'gpt-4o-mini',
+          model: DEFAULT_MODEL,
           source_text_hash: sourceTextHash,
           source_text_length: text.length,
           generated_count: aiResponse.stats.generated_count,
