@@ -44,14 +44,11 @@ export function useGenerationData(generationId: number | null) {
     try {
       setData(prev => ({ ...prev, isLoading: true, error: null }));
       
-      const [flashcardsData, generationData] = await Promise.all([
-        apiClient.getGenerationFlashcards(id),
-        apiClient.getGeneration(id)
-      ]);
+      const generationData = await apiClient.getGeneration(id);
       
       setData({
         generation: generationData,
-        flashcards: flashcardsData,
+        flashcards: generationData.flashcards || [],
         isLoading: false,
         error: null,
         timestamps: {

@@ -12,13 +12,9 @@ export class GenerationService {
   private openRouterService: OpenRouterService;
 
   constructor() {
-    console.log('OPENROUTER_API_KEY:', process.env.OPENROUTER_API_KEY);
     this.openRouterService = new OpenRouterService({
       apiKey: process.env.OPENROUTER_API_KEY || '',
-      defaultModel: 'gpt-4o-mini',
-      maxRetries: 3,
-      timeout: 60000,
-      cacheEnabled: true
+      defaultModel: 'gpt-4o-mini'
     });
   }
 
@@ -40,7 +36,7 @@ export class GenerationService {
         .from('generations')
         .insert({
           user_id: userId,
-          model: 'deepseek-reasoner',
+          model: 'gpt-4o-mini',
           source_text_hash: sourceTextHash,
           source_text_length: text.length,
           generated_count: aiResponse.stats.generated_count,
@@ -74,7 +70,7 @@ export class GenerationService {
           .from('generation_error_logs')
           .insert({
             user_id: userId,
-            model: 'deepseek-reasoner',
+            model: 'gpt-4o-mini',
             source_text_hash: sourceTextHash,
             source_text_length: text.length,
             error_code: 'GENERATION_ERROR',
@@ -84,7 +80,7 @@ export class GenerationService {
         console.error('Error logging generation error:', logError);
       }
       
-      throw new Error('Wystąpił błąd podczas generowania fiszek');
+      throw new Error('An error occurred while generating flashcards');
     }
   }
 
@@ -118,7 +114,10 @@ export class GenerationService {
   async getGeneration(id: number, userId: string) {
     const { data: generation, error } = await supabaseService
       .from('generations')
-      .select('*')
+      .select(`
+        *,
+        flashcards (*)
+      `)
       .eq('id', id)
       .eq('user_id', userId)
       .single();
@@ -127,25 +126,14 @@ export class GenerationService {
       throw new Error('Generation not found');
     }
 
-    return generation;
+    // Transform the response to match the expected format
+    const { flashcards, ...generationData } = generation;
+    return {
+      ...generationData,
+      flashcards: flashcards || []
+    };
   }
 
-  async getGenerationFlashcards(generationId: number, userId: string) {
-    // First verify the generation belongs to the user
-    const generation = await this.getGeneration(generationId, userId);
-    
-    const { data: flashcards, error } = await supabaseService
-      .from('flashcards')
-      .select('*')
-      .eq('generation_id', generationId)
-      .eq('user_id', userId);
-
-    if (error) {
-      throw new Error('Error retrieving flashcards for generation');
-    }
-
-    return flashcards;
-  }
 
   private async generateFlashcardsFromText(text: string): Promise<{
     flashcardProposals: FlashcardProposalDTO[];
@@ -154,18 +142,13 @@ export class GenerationService {
     const startTime = Date.now();
     
     try {
-      // Format system message
-      const systemMessage = this.openRouterService.formatSystemMessage({
-        systemPrompt: 'You are a helpful assistant that generates flashcards from text. Create 5-10 high-quality flashcards with a question on the front and an answer on the back. Each flashcard should cover a key concept from the text. Format your response as a JSON array with objects containing "front" and "back" properties. JSON only, no extra text or tags.',
-        temperature: 0.7,
-        maxTokens: 2000
-      });
+      const systemPrompt = 'You are a helpful assistant that generates flashcards from text. Create 5-10 high-quality flashcards with a question on the front and an answer on the back. Each flashcard should cover a key concept from the text. Format your response as a JSON array with objects containing "front" and "back" properties. JSON only, no extra text or tags.';
       
       // Call the OpenRouter service
       const response = await this.openRouterService.chat([
         {
           role: 'system',
-          content: systemMessage
+          content: this.openRouterService.formatSystemMessage(systemPrompt)
         },
         {
           role: 'user',
@@ -176,14 +159,11 @@ export class GenerationService {
         max_tokens: 2000
       });
       
-      // Extract the content from the API response
-      const content = response.content;
-      
       // Parse the JSON content
       let flashcardProposals;
       try {
         // Try to parse the content as JSON
-        const parsedContent = JSON.parse(content);
+        const parsedContent = JSON.parse(response.content);
         
         // Ensure it's an array
         if (Array.isArray(parsedContent)) {
@@ -197,9 +177,9 @@ export class GenerationService {
         }
       } catch (parseError) {
         console.error('Error parsing JSON from API response:', parseError);
-        console.log('API response:', content);
+        console.log('API response:', response.content);
         // If parsing fails, try to extract JSON from the text
-        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        const jsonMatch = response.content.match(/\[[\s\S]*\]/);
         if (jsonMatch) {
           try {
             const parsedContent = JSON.parse(jsonMatch[0]);
@@ -236,16 +216,12 @@ export class GenerationService {
 
   private async generateTitleForText(text: string): Promise<string> {
     try {
-      const systemMessage = this.openRouterService.formatSystemMessage({
-        systemPrompt: 'Generate a short, descriptive title (maximum 40 characters) that captures the main topic or theme of the text. The title should help users quickly identify what this set of flashcards is about. Respond with just the title, no additional text or formatting.',
-        temperature: 0.7,
-        maxTokens: 100
-      });
+      const systemPrompt = 'Generate a short, descriptive title (maximum 40 characters) that captures the main topic or theme of the text. The title should help users quickly identify what this set of flashcards is about. Respond with just the title, no additional text or formatting.';
 
       const response = await this.openRouterService.chat([
         {
           role: 'system',
-          content: systemMessage
+          content: this.openRouterService.formatSystemMessage(systemPrompt)
         },
         {
           role: 'user',

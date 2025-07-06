@@ -133,11 +133,6 @@ class ApiClient {
     return response.data;
   }
 
-  async getGenerationFlashcards(id: number): Promise<FlashcardDTO[]> {
-    const response = await this.request<FlashcardDTO[]>(`/api/generations/${id}/flashcards`);
-    return response.data!;
-  }
-
   async deleteGeneration(id: number): Promise<void> {
     await this.request(`/api/generations/${id}`, {
       method: 'DELETE',
