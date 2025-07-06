@@ -4,7 +4,7 @@
 - Frontend: React-based UI with TypeScript
 - Backend: Node.js with Express
 - Database: Supabase
-- AI Integration: OpenRouter API for flashcard generation
+- AI Integration: OpenRouter API for flashcard generation (simplified implementation)
 
 ## Frontend Routes
 
@@ -82,38 +82,6 @@ type GenerationErrorLog = {
 };
 ```
 
-### API Response Structure
-```typescript
-interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-  details?: any;
-};
-```
-
-### Command Types
-```typescript
-interface CreateFlashcardCommand {
-  front: string;
-  back: string;
-  source: 'manual' | 'ai-full' | 'ai-edited';
-  generation_id: number | null;
-  display_order: number;
-}
-
-interface UpdateFlashcardCommand {
-  front?: string;
-  back?: string;
-  source?: 'manual' | 'ai-full' | 'ai-edited';
-}
-
-interface GenerateFlashcardsCommand {
-  text: string; // 1,000-10,000 characters
-}
-```
-
 ## API Structure
 
 ### Authentication Endpoints
@@ -137,45 +105,38 @@ POST /api/auth/logout
 
 ### Flashcard Endpoints
 ```
-GET /api/flashcards
-- Response: FlashcardDTO[]
-
-GET /api/flashcards/:id
-- Response: FlashcardDTO
-
 POST /api/flashcards
-- Request: CreateFlashcardCommand
-- Response: FlashcardDTO
+- Request: { front: string, back: string, source: 'manual' | 'ai-full' | 'ai-edited', generation_id?: number | null, display_order: number }
+- Response: { success: true, data: FlashcardDTO }
 
 PUT /api/flashcards/:id
-- Request: UpdateFlashcardCommand
-- Response: FlashcardDTO
+- Request: { front?: string, back?: string, source?: 'manual' | 'ai-full' | 'ai-edited' }
+- Response: { success: true, data: FlashcardDTO }
 
 DELETE /api/flashcards/:id
-- Response: { success: true }
+- Response: { success: true, data: null }
 ```
 
 ### Generation Endpoints
 ```
 GET /api/generations
-- Response: { generations: Generation[], pagination: PaginationDTO }
+- Response: { success: true, data: { generations: Generation[], pagination: PaginationDTO } }
 
 GET /api/generations/:id
-- Response: Generation
-
-GET /api/generations/:id/flashcards
-- Response: FlashcardDTO[]
+- Response: { success: true, data: Generation }
 
 POST /api/generations
-- Request: GenerateFlashcardsCommand
-- Response: Generation
+- Request: { text: string } // Must be 1,000-10,000 characters, whitespace is trimmed
+- Response: { success: true, data: Generation }
+- Validation: Uses Zod schema for input validation
 
 PUT /api/generations/:id
 - Request: { flashcards: { front: string, back: string, source: 'ai-full' | 'ai-edited' }[] }
-- Response: FlashcardDTO[]
+- Response: { success: true, data: FlashcardDTO[] }
+- Validation: Front and back cannot be empty, source must be 'ai-full' or 'ai-edited'
 
 DELETE /api/generations/:id
-- Response: { success: true }
+- Response: { success: true, data: null }
 ```
 
 ## Key Features
@@ -186,7 +147,6 @@ DELETE /api/generations/:id
 - Delete flashcards
 - View flashcards in a list format
 - Each flashcard has a front (question) and back (answer)
-- Bulk creation support
 - Display order tracking
 
 ### AI-Powered Generation
@@ -198,18 +158,17 @@ DELETE /api/generations/:id
   - 'manual': User-created
   - 'ai-full': AI-generated, unedited
   - 'ai-edited': AI-generated, user-modified
-- Rate limiting and caching for API calls
-- Error logging and recovery
+- Basic error handling
 - Input validation and sanitization
 
 ## Security Features
-- User authentication required
+- User authentication required (via authenticate middleware)
 - Per-user data isolation
 - Access control checks on all operations
 - Ownership verification before modifications
-- Input validation using Zod schemas
+- Input validation using Zod schemas (especially for generations)
 - Helmet middleware for security headers
-- CORS protection
+- CORS protection (configured with FRONTEND_URL environment variable)
 - Response compression middleware
 - Rate limiting for OpenRouter API calls
 - Password complexity requirements
@@ -233,11 +192,9 @@ DELETE /api/generations/:id
 - Bulk operations support
 - Pagination support for large datasets
 - OpenRouter API integration with:
-  - Response caching
-  - Token bucket rate limiting
-  - Error handling and logging
+  - Basic error handling
   - Model selection
-  - Circuit breaker pattern
+  - Simple configuration
 - Development-only test endpoints
 - Comprehensive error handling
 - Input validation with Zod
