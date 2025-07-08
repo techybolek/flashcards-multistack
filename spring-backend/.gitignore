@@ -1,0 +1,6 @@
+target
+target/**
+.claude
+.claude/**
+**/application.yml
+
