@@ -21,7 +21,7 @@ public class Flashcard {
     @Column(nullable = false, length = 1000)
     private String back;
     
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = FlashcardSourceConverter.class)
     @Column(nullable = false)
     private FlashcardSource source;
     
