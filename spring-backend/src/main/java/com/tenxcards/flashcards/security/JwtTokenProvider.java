@@ -1,5 +1,6 @@
 package com.tenxcards.flashcards.security;
 
+import com.tenxcards.flashcards.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,18 +26,18 @@ public class JwtTokenProvider {
     }
     
     public String generateToken(Authentication authentication) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        User user = (User) authentication.getPrincipal();
         
         Date expiryDate = new Date(System.currentTimeMillis() + jwtExpiration);
         
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userPrincipal.getId().toString());
-        claims.put("email", userPrincipal.getEmail());
-        claims.put("name", userPrincipal.getName());
+        claims.put("userId", user.getId().toString());
+        claims.put("email", user.getEmail());
+        claims.put("name", user.getName());
         
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(userPrincipal.getId().toString())
+                .setSubject(user.getId().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)

@@ -2,7 +2,6 @@ package com.tenxcards.flashcards.service;
 
 import com.tenxcards.flashcards.entity.User;
 import com.tenxcards.flashcards.repository.UserRepository;
-import com.tenxcards.flashcards.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,17 +18,13 @@ public class UserService implements UserDetailsService {
     
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-        
-        return UserPrincipal.create(user);
     }
     
     public UserDetails loadUserById(UUID id) {
-        User user = userRepository.findById(id)
+        return userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
-        
-        return UserPrincipal.create(user);
     }
     
     public User findByEmail(String email) {
