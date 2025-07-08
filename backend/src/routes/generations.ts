@@ -64,13 +64,9 @@ router.post('/', async (req, res) => {
 
 // GET /api/generations
 router.get('/', async (req, res) => {
+  console.log('GET /api/generations, userid:', req.user!.id);
   try {
     const result = await generationService.getGenerations(req.user!.id);
-
-    // Log the raw data from database
-    console.log('API - Raw generations data:', JSON.stringify(result.generations, null, 2));
-    console.log('API - First generation created_at type:', result.generations?.[0]?.created_at ? typeof result.generations[0].created_at : 'no data');
-    console.log('API - First generation created_at value:', result.generations?.[0]?.created_at);
 
     const response: ApiResponse = {
       success: true,

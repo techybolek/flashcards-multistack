@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { apiClient } from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
 import type { FlashcardDTO } from '@/types';
@@ -34,9 +34,11 @@ export function useGenerationData(generationId: number | null) {
     }
   });
   const { toast } = useToast();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (generationId === null) return;
+    if (generationId === null || hasFetched.current) return;
+    hasFetched.current = true;
     loadGenerationData(generationId);
   }, [generationId]);
 

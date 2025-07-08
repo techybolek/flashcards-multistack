@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { apiClient } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -29,8 +29,14 @@ export default function GenerationsTable({ onError }: GenerationsTableProps) {
   const [generations, setGenerations] = useState<Generation[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
+    if (hasFetched.current) {
+      return;
+    }
+
+    hasFetched.current = true;
     loadGenerations();
   }, []);
 

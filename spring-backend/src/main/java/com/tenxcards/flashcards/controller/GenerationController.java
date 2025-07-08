@@ -122,6 +122,7 @@ public class GenerationController {
             @PathVariable Long id,
             Authentication authentication) {
         try {
+            System.out.println("TRO API - generations/:id");
             UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
             User user = userService.findById(userPrincipal.getId());
             
@@ -129,14 +130,16 @@ public class GenerationController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(ApiResponse.error("User not found"));
             }
-            
+           
+            System.out.println("TRO API - generations/:id - About to call findByIdAndUser...");
             Generation generation = generationRepository.findByIdAndUser(id, user)
                     .orElse(null);
             
             if (generation == null) {
                 return ResponseEntity.notFound().build();
             }
-            
+           
+            System.out.println("TRO API - generations/:id - About to call findByGenerationOrderByDisplayOrder...");
             List<Flashcard> flashcards = flashcardRepository.findByGenerationOrderByDisplayOrder(generation);
             
             Map<String, Object> generationData = convertGenerationToMap(generation);
@@ -148,8 +151,9 @@ public class GenerationController {
             return ResponseEntity.ok(ApiResponse.success(generationData));
             
         } catch (Exception e) {
+            System.out.println("TRO API - generations/:id - error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to retrieve generation"));
+                    .body(ApiResponse.error("Failed to retrieve generation + " + e.getMessage()));
         }
     }
     
@@ -245,9 +249,9 @@ public class GenerationController {
         Map<String, Object> map = new HashMap<>();
         map.put("id", generation.getId());
         map.put("name", generation.getName());
-        map.put("created_at", generation.getCreatedAt().format(formatter));
-        map.put("updated_at", generation.getUpdatedAt().format(formatter));
-        map.put("user_id", generation.getUser().getId().toString());
+        map.put("created_at", generation.getCreatedAt() != null ? generation.getCreatedAt().format(formatter) : null);
+        map.put("updated_at", generation.getUpdatedAt() != null ? generation.getUpdatedAt().format(formatter) : null);
+        map.put("user_id", generation.getUser() != null && generation.getUser().getId() != null ? generation.getUser().getId().toString() : null);
         return map;
     }
     
@@ -256,9 +260,9 @@ public class GenerationController {
         dto.setId(flashcard.getId());
         dto.setFront(flashcard.getFront());
         dto.setBack(flashcard.getBack());
-        dto.setSource(flashcard.getSource().getValue());
-        dto.setCreatedAt(flashcard.getCreatedAt().format(formatter));
-        dto.setUpdatedAt(flashcard.getUpdatedAt().format(formatter));
+        dto.setSource(flashcard.getSource() != null ? flashcard.getSource().getValue() : null);
+        dto.setCreatedAt(flashcard.getCreatedAt() != null ? flashcard.getCreatedAt().format(formatter) : null);
+        dto.setUpdatedAt(flashcard.getUpdatedAt() != null ? flashcard.getUpdatedAt().format(formatter) : null);
         dto.setDisplayOrder(flashcard.getDisplayOrder());
         
         if (flashcard.getGeneration() != null) {
