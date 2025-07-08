@@ -4,9 +4,14 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -14,7 +19,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "users", schema = "auth")
 @Immutable
-public class User {
+public class User implements UserDetails {
     
     @Id
     private UUID id;
@@ -112,10 +117,39 @@ public class User {
         return emailConfirmedAt != null;
     }
     
-    // Convenience method for password access (for UserPrincipal compatibility)
-    @Transient
+    @Override
     public String getPassword() {
         return encryptedPassword;
+    }
+    
+    @Override
+    public String getUsername() {
+        return email;
+    }
+    
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+    
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+    
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+    
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+    
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
     
     public LocalDateTime getCreatedAt() {

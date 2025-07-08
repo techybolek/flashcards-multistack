@@ -7,9 +7,7 @@ import com.tenxcards.flashcards.entity.Generation;
 import com.tenxcards.flashcards.entity.User;
 import com.tenxcards.flashcards.repository.FlashcardRepository;
 import com.tenxcards.flashcards.repository.GenerationRepository;
-import com.tenxcards.flashcards.security.UserPrincipal;
 import com.tenxcards.flashcards.service.OpenAIService;
-import com.tenxcards.flashcards.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,7 +22,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -38,9 +35,6 @@ public class GenerationController {
     private FlashcardRepository flashcardRepository;
     
     @Autowired
-    private UserService userService;
-    
-    @Autowired
     private OpenAIService openAIService;
     
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -50,13 +44,7 @@ public class GenerationController {
             @Valid @RequestBody GenerateFlashcardsCommand command,
             Authentication authentication) {
         try {
-            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            User user = userService.findById(userPrincipal.getId());
-            
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(ApiResponse.error("User not found"));
-            }
+            User user = (User) authentication.getPrincipal();
             
             LocalDateTime startTime = LocalDateTime.now();
             
@@ -95,13 +83,7 @@ public class GenerationController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getGenerations(Authentication authentication) {
         try {
-            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            User user = userService.findById(userPrincipal.getId());
-            
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(ApiResponse.error("User not found"));
-            }
+            User user = (User) authentication.getPrincipal();
             
             List<Generation> generations = generationRepository.findByUserOrderByCreatedAtDesc(user);
             
@@ -123,14 +105,8 @@ public class GenerationController {
             Authentication authentication) {
         try {
             System.out.println("TRO API - generations/:id");
-            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            User user = userService.findById(userPrincipal.getId());
+            User user = (User) authentication.getPrincipal();
             
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(ApiResponse.error("User not found"));
-            }
-           
             System.out.println("TRO API - generations/:id - About to call findByIdAndUser...");
             Generation generation = generationRepository.findByIdAndUser(id, user)
                     .orElse(null);
@@ -164,13 +140,7 @@ public class GenerationController {
             @RequestBody Map<String, Object> updateData,
             Authentication authentication) {
         try {
-            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            User user = userService.findById(userPrincipal.getId());
-            
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(ApiResponse.error("User not found"));
-            }
+            User user = (User) authentication.getPrincipal();
             
             Generation generation = generationRepository.findByIdAndUser(id, user)
                     .orElse(null);
@@ -216,13 +186,7 @@ public class GenerationController {
             @PathVariable Long id,
             Authentication authentication) {
         try {
-            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            User user = userService.findById(userPrincipal.getId());
-            
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(ApiResponse.error("User not found"));
-            }
+            User user = (User) authentication.getPrincipal();
             
             Generation generation = generationRepository.findByIdAndUser(id, user)
                     .orElse(null);
@@ -248,7 +212,7 @@ public class GenerationController {
     private Map<String, Object> convertGenerationToMap(Generation generation) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", generation.getId());
-        map.put("name", generation.getName());
+        map.put("generation_name", generation.getName());
         map.put("created_at", generation.getCreatedAt() != null ? generation.getCreatedAt().format(formatter) : null);
         map.put("updated_at", generation.getUpdatedAt() != null ? generation.getUpdatedAt().format(formatter) : null);
         map.put("user_id", generation.getUser() != null && generation.getUser().getId() != null ? generation.getUser().getId().toString() : null);
