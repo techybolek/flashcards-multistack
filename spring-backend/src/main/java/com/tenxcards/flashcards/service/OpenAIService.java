@@ -8,6 +8,8 @@ import com.theokanning.openai.completion.chat.ChatMessageRole;
 import com.theokanning.openai.service.OpenAiService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -18,12 +20,19 @@ import java.util.regex.Pattern;
 
 @Service
 public class OpenAIService {
+
+
+    static String SYSTEM_PROMPT = "You are a helpful assistant that generates flashcards from text. Create 5-10 high-quality flashcards with a question on the front and an answer on the back. Each flashcard should cover a key concept from the text. Format your response as a JSON array with objects containing \"front\" and \"back\" properties. JSON only, no extra text, tags or delimiters.";
     
     @Value("${openai.api-key}")
     private String apiKey;
     
     @Value("${openai.model}")
     private String model;
+
+    public String getModel() {
+        return model;
+    }
     
     private OpenAiService openAiService;
     
@@ -36,12 +45,10 @@ public class OpenAIService {
     
     public List<FlashcardProposalDTO> generateFlashcards(String text) {
         try {
-            String prompt = buildPrompt(text);
+            String userPrompt = buildPrompt(text);
             
-            ChatMessage systemMessage = new ChatMessage(ChatMessageRole.SYSTEM.value(), 
-                "You are an expert at creating educational flashcards. Generate high-quality flashcards from the provided text.");
-            
-            ChatMessage userMessage = new ChatMessage(ChatMessageRole.USER.value(), prompt);
+            ChatMessage systemMessage = new ChatMessage(ChatMessageRole.SYSTEM.value(), SYSTEM_PROMPT);
+            ChatMessage userMessage = new ChatMessage(ChatMessageRole.USER.value(), userPrompt);
             
             ChatCompletionRequest request = ChatCompletionRequest.builder()
                     .model(model)
@@ -77,29 +84,40 @@ public class OpenAIService {
         );
     }
     
-    private List<FlashcardProposalDTO> parseFlashcards(String responseText) {
+    // Change from private to package-private for testing
+    List<FlashcardProposalDTO> parseFlashcards(String responseText) {
         List<FlashcardProposalDTO> flashcards = new ArrayList<>();
         
-        // Split by --- separator
-        String[] cards = responseText.split("---");
-        
-        for (String card : cards) {
-            card = card.trim();
-            if (card.isEmpty()) continue;
+        // First try to parse as JSON
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            flashcards = mapper.readValue(responseText, new TypeReference<List<FlashcardProposalDTO>>() {});
+            return flashcards;
+        } catch (Exception e) {
+            // If JSON parsing fails, fall back to text format parsing
+            System.out.println("JSON parsing failed, falling back to text format parsing: " + e.getMessage());
             
-            // Extract FRONT and BACK using regex
-            Pattern frontPattern = Pattern.compile("FRONT:\\s*(.+?)(?=BACK:|$)", Pattern.DOTALL);
-            Pattern backPattern = Pattern.compile("BACK:\\s*(.+?)(?=FRONT:|$)", Pattern.DOTALL);
+            // Split by --- separator
+            String[] cards = responseText.split("---");
             
-            Matcher frontMatcher = frontPattern.matcher(card);
-            Matcher backMatcher = backPattern.matcher(card);
-            
-            if (frontMatcher.find() && backMatcher.find()) {
-                String front = frontMatcher.group(1).trim();
-                String back = backMatcher.group(1).trim();
+            for (String card : cards) {
+                card = card.trim();
+                if (card.isEmpty()) continue;
                 
-                if (!front.isEmpty() && !back.isEmpty()) {
-                    flashcards.add(new FlashcardProposalDTO(front, back));
+                // Extract FRONT and BACK using regex
+                Pattern frontPattern = Pattern.compile("FRONT:\\s*(.+?)(?=BACK:|$)", Pattern.DOTALL);
+                Pattern backPattern = Pattern.compile("BACK:\\s*(.+?)(?=FRONT:|$)", Pattern.DOTALL);
+                
+                Matcher frontMatcher = frontPattern.matcher(card);
+                Matcher backMatcher = backPattern.matcher(card);
+                
+                if (frontMatcher.find() && backMatcher.find()) {
+                    String front = frontMatcher.group(1).trim();
+                    String back = backMatcher.group(1).trim();
+                    
+                    if (!front.isEmpty() && !back.isEmpty()) {
+                        flashcards.add(new FlashcardProposalDTO(front, back));
+                    }
                 }
             }
         }

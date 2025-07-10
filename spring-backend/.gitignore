@@ -2,5 +2,5 @@ target
 target/**
 .claude
 .claude/**
-**/application.yml
+**/application.ymtr
 
