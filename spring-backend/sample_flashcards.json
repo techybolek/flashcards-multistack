@@ -1,0 +1,42 @@
+[
+    {
+        "front": "What is quantum computing?",
+        "back": "Quantum computing utilizes quantum mechanics to solve complex problems that are intractable for classical computers."
+    },
+    {
+        "front": "What are qubits?",
+        "back": "Qubits are the basic units of quantum information, capable of existing in superposition, allowing them to represent both 0 and 1 simultaneously."
+    },
+    {
+        "front": "What is superposition in quantum computing?",
+        "back": "Superposition allows a qubit to represent multiple values at once, enabling quantum computers to explore numerous possibilities concurrently."
+    },
+    {
+        "front": "What is entanglement?",
+        "back": "Entanglement is a phenomenon where qubits become linked, so the state of one qubit instantly influences the state of another, regardless of distance."
+    },
+    {
+        "front": "What are some applications of quantum computing?",
+        "back": "Applications include drug discovery, materials science, optimization, financial modeling, and enhancing artificial intelligence."
+    },
+    {
+        "front": "What is a significant challenge facing quantum computing?",
+        "back": "Scalability is a major challenge, as building and maintaining large, stable quantum computers is difficult."
+    },
+    {
+        "front": "Why is error correction important in quantum computing?",
+        "back": "Error correction is crucial because qubits are susceptible to noise and decoherence, which can lead to errors in computations."
+    },
+    {
+        "front": "What is the current status of quantum computing?",
+        "back": "Quantum computing is rapidly advancing, with significant investments and research from companies like IBM, Google, and Microsoft."
+    },
+    {
+        "front": "How does quantum computing differ from classical computing?",
+        "back": "Quantum computing leverages quantum phenomena like superposition and entanglement, allowing for exponentially faster computations for certain tasks compared to classical computing."
+    },
+    {
+        "front": "What potential does quantum computing hold for the future?",
+        "back": "Quantum computing has the potential to revolutionize various industries by solving previously intractable problems."
+    }
+]

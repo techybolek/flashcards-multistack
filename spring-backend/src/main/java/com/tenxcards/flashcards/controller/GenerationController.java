@@ -16,10 +16,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,72 +31,93 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/generations")
 public class GenerationController {
-    
+
     @Autowired
     private GenerationRepository generationRepository;
-    
+
     @Autowired
     private FlashcardRepository flashcardRepository;
-    
+
     @Autowired
     private OpenAIService openAIService;
-    
+
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    
+
     @PostMapping
     public ResponseEntity<ApiResponse<GenerationResultDTO>> generateFlashcards(
             @Valid @RequestBody GenerateFlashcardsCommand command,
             Authentication authentication) {
         try {
             User user = (User) authentication.getPrincipal();
-            
+
             LocalDateTime startTime = LocalDateTime.now();
-            
+
             // Generate flashcards using AI
             List<FlashcardProposalDTO> proposals = openAIService.generateFlashcards(command.getText());
-            
+
             LocalDateTime endTime = LocalDateTime.now();
             Duration duration = Duration.between(startTime, endTime);
-            
+
             // Create generation record
             Generation generation = new Generation();
             generation.setName("Generation " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
             generation.setUser(user);
+            generation.setGeneratedCount(proposals.size());
+            generation.setSourceTextLength(command.getText().length());
+            generation.setGenerationDuration(duration);
+            generation.setModel("gpt-4o"); // Hardcoded for now
+            generation.setSourceTextHash(calculateSHA256(command.getText()));
+
             generation = generationRepository.save(generation);
-            
-            // Create stats
-            GenerationStatsDTO stats = new GenerationStatsDTO();
-            stats.setGeneratedCount(proposals.size());
-            stats.setGenerationDuration("PT" + duration.getSeconds() + "S");
-            
+
             // Create result DTO
             GenerationResultDTO result = new GenerationResultDTO();
             result.setGenerationId(generation.getId());
             result.setGenerationName(generation.getName());
             result.setFlashcardProposals(proposals);
+            
+            // Create and set stats to match Express response
+            GenerationStatsDTO stats = new GenerationStatsDTO();
+            stats.setGeneratedCount(proposals.size());
+            stats.setGenerationDuration(formatDurationToISO8601(duration));
             result.setStats(stats);
-            
+
+
             return ResponseEntity.ok(ApiResponse.success(result));
-            
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to generate flashcards"));
+                    .body(ApiResponse.error("Failed to generate flashcards: " + e.getMessage()));
+        }
+    }
+
+    private String calculateSHA256(String text) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(text.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Could not calculate SHA-256 hash", e);
         }
     }
     
+    private String formatDurationToISO8601(Duration duration) {
+        return duration.toString(); // Duration.toString() already returns ISO 8601 format (e.g., "PT3S")
+    }
+
     @GetMapping
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getGenerations(Authentication authentication) {
         try {
             User user = (User) authentication.getPrincipal();
-            
+
             List<Generation> generations = generationRepository.findByUserOrderByCreatedAtDesc(user);
-            
+
             List<Map<String, Object>> generationData = generations.stream()
                     .map(this::convertGenerationToMap)
                     .collect(Collectors.toList());
-            
+
             return ResponseEntity.ok(ApiResponse.success(generationData));
-            
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Failed to retrieve generations"));

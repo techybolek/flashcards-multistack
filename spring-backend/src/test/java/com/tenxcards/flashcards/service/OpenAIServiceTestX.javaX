@@ -1,0 +1,36 @@
+package com.tenxcards.flashcards.service;
+
+import com.tenxcards.flashcards.dto.FlashcardProposalDTO;
+import org.junit.jupiter.api.Test;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class OpenAIServiceTest {
+
+    @Test
+    void testParseFlashcardsWithJsonFormat() {
+        String json = """
+        [
+          {
+            \"front\": \"What is a qubit?\",
+            \"back\": \"Unlike classical bits which are either 0 or 1, qubits can exist in a superposition of both states simultaneously, allowing for parallel computation.\"
+          },
+          {
+            \"front\": \"What is superposition in quantum computing?\",
+            \"back\": \"A qubit can represent multiple values at once, enabling quantum computers to explore numerous possibilities concurrently.\"
+          }
+        ]
+        """;
+
+        OpenAIService service = new OpenAIService();
+        List<FlashcardProposalDTO> result = service.parseFlashcards(json);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("What is a qubit?", result.get(0).getFront());
+        assertEquals("Unlike classical bits which are either 0 or 1, qubits can exist in a superposition of both states simultaneously, allowing for parallel computation.", result.get(0).getBack());
+        assertEquals("What is superposition in quantum computing?", result.get(1).getFront());
+        assertEquals("A qubit can represent multiple values at once, enabling quantum computers to explore numerous possibilities concurrently.", result.get(1).getBack());
+    }
+} 
