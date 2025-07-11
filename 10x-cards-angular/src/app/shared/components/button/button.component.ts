@@ -11,4 +11,5 @@ export class ButtonComponent {
   @Input() variant: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' = 'default';
   @Input() size: 'default' | 'sm' | 'lg' | 'icon' = 'default';
   @Input() class?: string;
+  @Input() disabled?: boolean;
 }
