@@ -1,27 +1,76 @@
-<ng-container *ngIf="generation$ | async as generation; else loading">
-  <div class="space-y-4">
-    <h1 class="text-3xl font-bold">{{ generation.topic }}</h1>
-    <p class="text-muted-foreground">{{ generation.flashcards.length }} cards</p>
-    
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <app-card *ngFor="let flashcard of generation.flashcards">
-        <app-card-header>
-          <app-card-title>Q:</app-card-title>
-        </app-card-header>
-        <app-card-content>
-          <p>{{ flashcard.front }}</p>
-        </app-card-content>
-        <app-card-header>
-          <app-card-title>A:</app-card-title>
-        </app-card-header>
-        <app-card-content>
-          <p>{{ flashcard.back }}</p>
-        </app-card-content>
-      </app-card>
-    </div>
-  </div>
+<ng-container *ngIf="isLoading; else loaded">
+  <p>Loading generation...</p>
 </ng-container>
 
-<ng-template #loading>
-  <p>Loading generation...</p>
+<ng-template #loaded>
+  <div *ngIf="error" class="text-red-500 text-center py-4">{{ error }}</div>
+  <ng-container *ngIf="generation">
+    <app-generation-header
+      [name]="generation.topic"
+      [flashcardCount]="flashcards.length"
+      [createdAt]="generation.created_at"
+      (onAddClick)="showAddForm = true"
+    />
+
+    <app-new-flashcard-form
+      *ngIf="showAddForm"
+      [generationId]="generation.id"
+      [isSubmitting]="isAddingCard"
+      (onSubmit)="handleAddSubmit($event)"
+      (onCancel)="showAddForm = false"
+    />
+
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-4">
+      <app-card *ngFor="let flashcard of flashcards">
+        <ng-container *ngIf="editingFlashcardId !== flashcard.id; else editMode">
+          <app-card-header>
+            <app-card-title>Q:</app-card-title>
+          </app-card-header>
+          <app-card-content>
+            <p>{{ flashcard.front }}</p>
+          </app-card-content>
+          <app-card-header>
+            <app-card-title>A:</app-card-title>
+          </app-card-header>
+          <app-card-content>
+            <p>{{ flashcard.back }}</p>
+          </app-card-content>
+          <div class="flex gap-2 p-2">
+            <button class="btn btn-sm btn-warning" [disabled]="savingIds.has(flashcard.id)" (click)="startEditFlashcard(flashcard)">Edit</button>
+            <button class="btn btn-sm btn-error" [disabled]="savingIds.has(flashcard.id)" (click)="handleDelete(flashcard)">Delete</button>
+            <span *ngIf="savingIds.has(flashcard.id)" class="text-xs text-gray-400 ml-2">Saving...</span>
+          </div>
+        </ng-container>
+        <ng-template #editMode>
+          <app-card-header>
+            <app-card-title>Edit Q:</app-card-title>
+          </app-card-header>
+          <app-card-content>
+            <input class="input input-bordered w-full" [(ngModel)]="editFormValues.front" placeholder="Front" />
+          </app-card-content>
+          <app-card-header>
+            <app-card-title>Edit A:</app-card-title>
+          </app-card-header>
+          <app-card-content>
+            <input class="input input-bordered w-full" [(ngModel)]="editFormValues.back" placeholder="Back" />
+          </app-card-content>
+          <app-card-header>
+            <app-card-title>Source:</app-card-title>
+          </app-card-header>
+          <app-card-content>
+            <select class="select select-bordered w-full" [(ngModel)]="editFormValues.source">
+              <option value="manual">Manual</option>
+              <option value="ai-full">AI Full</option>
+              <option value="ai-edited">AI Edited</option>
+            </select>
+          </app-card-content>
+          <div class="flex gap-2 p-2">
+            <button class="btn btn-sm btn-success" [disabled]="isSavingEdit" (click)="saveEditFlashcard(flashcard)">Save</button>
+            <button class="btn btn-sm btn-secondary" [disabled]="isSavingEdit" (click)="cancelEditFlashcard()">Cancel</button>
+            <span *ngIf="isSavingEdit" class="text-xs text-gray-400 ml-2">Saving...</span>
+          </div>
+        </ng-template>
+      </app-card>
+    </div>
+  </ng-container>
 </ng-template>

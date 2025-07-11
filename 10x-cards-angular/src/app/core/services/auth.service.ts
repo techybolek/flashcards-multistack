@@ -16,7 +16,7 @@ import {
 export class AuthService {
   private http = inject(HttpClient);
   // TODO: Move to environment variable
-  private apiUrl = 'http://localhost:3000';
+  private apiUrl = 'http://localhost:3001/api';
   
   private _user = new BehaviorSubject<User | null>(null);
   private _isLoading = new BehaviorSubject<boolean>(true);
@@ -54,10 +54,10 @@ export class AuthService {
     return this.http.post<LoginUserResponseDTO>(`${this.apiUrl}/auth/login`, command).pipe(
       tap(response => {
         // Store the token
-        localStorage.setItem('authToken', response.token);
+        localStorage.setItem('authToken', response.data.token);
         
         // Decode the token to get user info
-        const payload = JSON.parse(atob(response.token.split('.')[1]));
+        const payload = JSON.parse(atob(response.data.token.split('.')[1]));
         
         const user: User = {
           id: payload.userId,

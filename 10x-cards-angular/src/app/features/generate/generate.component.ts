@@ -82,17 +82,17 @@ export class GenerateComponent {
       this.apiService.generateFlashcards(command).subscribe({
         next: (result: GenerationResultDTO) => {
           // Transform the proposals to include approval state
-          const proposalsWithState = result.flashcardProposals.map(proposal => ({
+          const proposalsWithState = result.data.flashcardProposals.map(proposal => ({
             ...proposal,
             approved: true, // Default to approved
             edited: false
           }));
 
           this.proposals = proposalsWithState;
-          this.generationId = result.generation_id;
+          this.generationId = result.data.generation_id;
           this.step = 'review';
 
-          this.showSuccess(`Generated ${result.stats.generated_count} flashcards! Please review them.`);
+          this.showSuccess(`Generated ${result.data.stats.generated_count} flashcards! Please review them.`);
         },
         error: (error) => {
           this.showError(error.message || 'Failed to generate flashcards. Please try again.');
