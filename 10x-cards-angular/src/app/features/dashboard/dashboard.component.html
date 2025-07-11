@@ -1,16 +1,25 @@
-<div class="space-y-4">
-  <div class="flex items-center justify-between">
-    <h1 class="text-3xl font-bold">Dashboard</h1>
-    <a routerLink="/generate">
-      <app-button>New Generation</app-button>
-    </a>
+<div class="max-w-6xl mx-auto">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold">Dashboard</h1>
+      <p class="text-muted-foreground">Welcome back, {{ user?.email }}</p>
+    </div>
+    <app-button variant="outline" (click)="handleLogout()">
+      Logout
+    </app-button>
   </div>
 
-  <ng-container *ngIf="generations$ | async as generations; else loading">
-    <app-generations-table [generations]="generations"></app-generations-table>
-  </ng-container>
+  <div *ngIf="error" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+    <p class="text-red-700">{{ error }}</p>
+    <app-button 
+      variant="outline" 
+      size="sm" 
+      (click)="dismissError()"
+      class="mt-2"
+    >
+      Dismiss
+    </app-button>
+  </div>
 
-  <ng-template #loading>
-    <p>Loading generations...</p>
-  </ng-template>
+  <app-generations-table (error)="handleError($event)"></app-generations-table>
 </div>
