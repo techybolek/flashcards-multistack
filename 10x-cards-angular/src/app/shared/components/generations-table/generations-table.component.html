@@ -15,39 +15,39 @@
     </app-button>
   </div>
 
-  <div *ngIf="generations.length > 0" class="border rounded-lg">
-    <app-table>
-      <app-table-header>
-        <app-table-row>
-          <app-table-head>Name</app-table-head>
-          <app-table-head>Created</app-table-head>
-          <app-table-head>Updated</app-table-head>
-          <app-table-head>Flashcards</app-table-head>
-          <app-table-head class="text-right">Actions</app-table-head>
-        </app-table-row>
-      </app-table-header>
-      <app-table-body>
-        <app-table-row *ngFor="let generation of generations">
-          <app-table-cell>
+  <div *ngIf="generations.length > 0" class="border rounded-lg overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead>
+        <tr>
+          <th class="px-4 py-2 text-left">Name</th>
+          <th class="px-4 py-2 text-left">Created</th>
+          <th class="px-4 py-2 text-left">Updated</th>
+          <th class="px-4 py-2 text-left">Flashcards</th>
+          <th class="px-4 py-2 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let generation of generations">
+          <td class="px-4 py-2">
             <a 
               [routerLink]="['/generations', generation.id]"
               class="font-medium hover:underline"
             >
               {{ generation.generation_name }}
             </a>
-          </app-table-cell>
-          <app-table-cell class="text-muted-foreground">
+          </td>
+          <td class="px-4 py-2 text-muted-foreground">
             {{ generation.created_at | date: 'mediumDate' }}
-          </app-table-cell>
-          <app-table-cell class="text-muted-foreground">
+          </td>
+          <td class="px-4 py-2 text-muted-foreground">
             {{ generation.updated_at | date: 'mediumDate' }}
-          </app-table-cell>
-          <app-table-cell>
+          </td>
+          <td class="px-4 py-2">
             <app-badge variant="secondary">
               {{ generation.flashcard_count || 0 }} cards
             </app-badge>
-          </app-table-cell>
-          <app-table-cell class="text-right">
+          </td>
+          <td class="px-4 py-2 text-right">
             <div class="flex gap-2 justify-end">
               <app-button variant="outline" size="sm">
                 <a [routerLink]="['/generations', generation.id]">
@@ -63,10 +63,10 @@
                 {{ deletingId === generation.id ? 'Deleting...' : 'Delete' }}
               </app-button>
             </div>
-          </app-table-cell>
-        </app-table-row>
-      </app-table-body>
-    </app-table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
 

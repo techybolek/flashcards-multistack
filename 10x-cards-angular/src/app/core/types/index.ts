@@ -24,10 +24,13 @@ export interface RecoverPasswordCommand {
 
 // DTO for user login response
 export interface LoginUserResponseDTO {
-  token: string;
-  user: {
-    id: string; // UUID representing the user's ID
-    email: string;
+  success: boolean;
+  data: {
+    token: string;
+    user: {
+      id: string; // UUID representing the user's ID
+      email: string;
+    };
   };
 }
 
@@ -56,7 +59,7 @@ export interface CreateFlashcardCommand {
 export interface UpdateFlashcardCommand {
   front: string;
   back: string;
-  source: 'manual' | 'ai-edited';
+  source: 'manual' | 'ai-full' | 'ai-edited';
 }
 
 // Pagination structure used in list endpoints.
@@ -88,10 +91,13 @@ export interface GenerationStatsDTO {
 
 // DTO for the result of flashcard generation, including proposals and generation statistics.
 export interface GenerationResultDTO {
-  generation_id: number;
-  generation_name: string;
-  flashcardProposals: FlashcardProposalDTO[];
-  stats: GenerationStatsDTO;
+  success: boolean;
+  data: {
+    generation_id: number;
+    generation_name: string;
+    flashcardProposals: FlashcardProposalDTO[];
+    stats: GenerationStatsDTO;
+  };
 }
 
 // Command model for generating flashcards from a block of text. Expects text between 1000 and 10000 characters.

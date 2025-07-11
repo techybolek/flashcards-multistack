@@ -34,7 +34,7 @@ export interface GenerationDetail {
 })
 export class ApiService {
   // TODO: Move to environment variable
-  private apiUrl = 'http://localhost:3000'; 
+  private apiUrl = 'http://localhost:3001'; 
 
   constructor(private http: HttpClient) { }
 
@@ -47,8 +47,8 @@ export class ApiService {
     return this.http.get<any>(`${this.apiUrl}/api/generations`);
   }
 
-  getGeneration(id: string | number): Observable<GenerationDetail> {
-    return this.http.get<GenerationDetail>(`${this.apiUrl}/api/generations/${id}`);
+  getGeneration(id: string | number): Observable<{success: boolean, data: GenerationDetail}> {
+    return this.http.get<{success: boolean, data: GenerationDetail}>(`${this.apiUrl}/api/generations/${id}`);
   }
 
   deleteGeneration(id: number): Observable<void> {

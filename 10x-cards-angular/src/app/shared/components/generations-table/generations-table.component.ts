@@ -4,14 +4,6 @@ import { RouterModule } from '@angular/router';
 import { ApiService, Generation } from '../../../core/services/api.service';
 import { ButtonComponent } from '../button/button.component';
 import { BadgeComponent } from '../badge/badge.component';
-import { 
-  TableComponent, 
-  TableHeaderComponent, 
-  TableBodyComponent, 
-  TableRowComponent, 
-  TableHeadComponent, 
-  TableCellComponent 
-} from '../table/table.component';
 
 @Component({
   selector: 'app-generations-table',
@@ -22,12 +14,6 @@ import {
     RouterModule, 
     ButtonComponent, 
     BadgeComponent,
-    TableComponent,
-    TableHeaderComponent,
-    TableBodyComponent,
-    TableRowComponent,
-    TableHeadComponent,
-    TableCellComponent
   ]
 })
 export class GenerationsTableComponent implements OnInit {
