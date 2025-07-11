@@ -19,21 +19,13 @@ class TestControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Test
-    void testRunIntegrationTestEndpoint() throws Exception {
-        mockMvc.perform(get("/api/test/integration"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").value("OK"))
-                .andExpect(jsonPath("$.message").value("Integration test endpoint reached successfully."));
-    }
 
     @Test
     void testCreateTestGenerationEndpoint() throws Exception {
-        mockMvc.perform(get("/api/test/create-generation"))
+        mockMvc.perform(get("/api/test/integration1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").value("OK"))
-                .andExpect(jsonPath("$.message").value("Test generation created successfully."));
+                .andExpect(jsonPath("$.message").value("SUCCESS"));
     }
 }

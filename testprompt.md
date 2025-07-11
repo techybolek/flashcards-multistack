@@ -1,0 +1,1 @@
+Create a test program to save a Generation test entity in DB. Just one basic testcase. Important: The test is supposed to connect to the same supabase DB as the application. Absolutely no test databases or schemas! Important: The the test is suppose dto reference an existing test user with id 3bd2de75-e9c2-4d7b-9079-8d76f8a048e4. Absolutely no user creation!

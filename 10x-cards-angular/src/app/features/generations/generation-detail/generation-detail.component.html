@@ -1,0 +1,27 @@
+<ng-container *ngIf="generation$ | async as generation; else loading">
+  <div class="space-y-4">
+    <h1 class="text-3xl font-bold">{{ generation.topic }}</h1>
+    <p class="text-muted-foreground">{{ generation.flashcards.length }} cards</p>
+    
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <app-card *ngFor="let flashcard of generation.flashcards">
+        <app-card-header>
+          <app-card-title>Q:</app-card-title>
+        </app-card-header>
+        <app-card-content>
+          <p>{{ flashcard.question }}</p>
+        </app-card-content>
+        <app-card-header>
+          <app-card-title>A:</app-card-title>
+        </app-card-header>
+        <app-card-content>
+          <p>{{ flashcard.answer }}</p>
+        </app-card-content>
+      </app-card>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #loading>
+  <p>Loading generation...</p>
+</ng-template>

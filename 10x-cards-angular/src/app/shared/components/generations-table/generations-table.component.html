@@ -1,0 +1,25 @@
+<div class="border rounded-lg">
+  <table class="w-full caption-bottom text-sm">
+    <thead class="[&_tr]:border-b">
+      <tr class="border-b transition-colors hover:bg-muted/50">
+        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Topic</th>
+        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Date</th>
+        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Cards</th>
+        <th class="h-12 px-4 align-middle font-medium text-muted-foreground"></th>
+      </tr>
+    </thead>
+    <tbody class="[&_tr:last-child]:border-0">
+      <tr *ngIf="generations.length === 0">
+        <td colspan="4" class="p-4 text-center text-muted-foreground">No generations found.</td>
+      </tr>
+      <tr *ngFor="let generation of generations" class="border-b transition-colors hover:bg-muted/50">
+        <td class="p-4 align-middle font-medium">{{ generation.topic }}</td>
+        <td class="p-4 align-middle text-muted-foreground">{{ generation.created_at | date: 'mediumDate' }}</td>
+        <td class="p-4 align-middle text-muted-foreground">{{ generation.flashcards_count }}</td>
+        <td class="p-4 align-middle text-right">
+          <a [routerLink]="['/generations', generation.id]" class="text-primary hover:underline">View</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
