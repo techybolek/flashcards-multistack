@@ -108,6 +108,8 @@ public class SupabaseAuthService {
     }
     
     public Map<String, Object> register(RegisterUserCommand command) {
+        System.out.println("SupabaseAuthService: Starting registration for " + command.getEmail() + " with password " + command.getPassword());
+        System.out.println("Frontend URL: " + frontendUrl);
         try {
             Map<String, Object> requestBody = Map.of(
                     "email", command.getEmail(),
@@ -116,6 +118,8 @@ public class SupabaseAuthService {
                             "emailRedirectTo", frontendUrl + "/auth/callback"
                     )
             );
+
+            System.out.println("Making request to: " + supabaseUrl + "/auth/v1/signup");
             
             Map<String, Object> response = webClient.post()
                     .uri(supabaseUrl + "/auth/v1/signup")
@@ -127,30 +131,24 @@ public class SupabaseAuthService {
                     .bodyToMono(Map.class)
                     .block();
             
-            if (response == null || !response.containsKey("user")) {
+            System.out.println("Supabase response received: " + (response != null ? "success" : "null"));
+            
+            if (response == null || !response.containsKey("user_metadata")) {
                 throw new RuntimeException("Registration failed - no user data received");
             }
             
-            Map<String, Object> user = (Map<String, Object>) response.get("user");
-            
+            Map<String, Object> userMetadata = (Map<String, Object>) response.get("user_metadata");
             // Check if email confirmation is needed
-            Object identities = user.get("identities");
-            if (identities instanceof java.util.List && ((java.util.List<?>) identities).isEmpty()) {
+            boolean emailVerified = (boolean) userMetadata.get("email_verified");
+            if (emailVerified) {
                 throw new RuntimeException("This email is already registered. Please check your email for the confirmation link or try logging in.");
             }
+
+            System.out.println("User: " + userMetadata);
             
-            // Check if email is already confirmed
-            Object confirmedAt = user.get("confirmed_at");
-            if (confirmedAt != null) {
-                return Map.of(
-                        "user", user,
-                        "requiresEmailConfirmation", false,
-                        "message", "Registration successful! You can now log in."
-                );
-            }
-            
+            System.out.println("Returning requiresEmailConfirmation true");
             return Map.of(
-                    "user", user,
+                    "user", userMetadata,
                     "requiresEmailConfirmation", true,
                     "message", "Please check your email for a confirmation link to complete your registration."
             );

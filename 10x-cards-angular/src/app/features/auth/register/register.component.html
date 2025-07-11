@@ -1,0 +1,30 @@
+<div class="flex items-center justify-center h-full">
+  <app-card class="w-full max-w-sm">
+    <app-card-header>
+      <app-card-title>Register</app-card-title>
+      <app-card-description>Create a new account.</app-card-description>
+    </app-card-header>
+    <app-card-content>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <div class="grid gap-4">
+          <div class="grid gap-2">
+            <app-label for="email">Email</app-label>
+            <app-input id="email" type="email" placeholder="m@example.com" formControlName="email"></app-input>
+          </div>
+          <div class="grid gap-2">
+            <app-label for="password">Password</app-label>
+            <app-input id="password" type="password" formControlName="password"></app-input>
+          </div>
+          <app-button type="submit" class="w-full" [disabled]="registerForm.invalid">Register</app-button>
+          <div *ngIf="errorMessage" class="text-red-500 text-sm text-center">{{ errorMessage }}</div>
+        </div>
+      </form>
+    </app-card-content>
+    <app-card-footer class="flex-col">
+        <p class="text-sm text-muted-foreground">
+            Already have an account?
+            <a routerLink="/auth/login" class="underline">Login</a>
+        </p>
+    </app-card-footer>
+  </app-card>
+</div>

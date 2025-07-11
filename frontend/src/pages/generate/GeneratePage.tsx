@@ -21,6 +21,24 @@ export default function GeneratePage() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const handleLoadSample = async () => {
+    try {
+      const response = await fetch('/sampleContent.md');
+      const sampleText = await response.text();
+      setText(sampleText);
+      toast({
+        title: "Success",
+        description: "Sample content loaded.",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load sample content.",
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -194,8 +212,13 @@ export default function GeneratePage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="text">Your Text</Label>
+        <div className="space-y-2 relative">
+          <div className="flex justify-between items-center">
+            <Label htmlFor="text">Your Text</Label>
+            <Button type="button" variant="link" onClick={handleLoadSample}>
+              Load Sample Content
+            </Button>
+          </div>
           <textarea
             id="text"
             value={text}

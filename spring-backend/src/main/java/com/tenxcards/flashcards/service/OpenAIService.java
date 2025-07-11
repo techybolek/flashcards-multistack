@@ -68,7 +68,7 @@ public class OpenAIService {
             
         } catch (Exception e) {
             System.err.println("Error generating flashcards: " + e.getMessage());
-            return generateMockFlashcards(text);
+            throw e;
         }
     }
     
