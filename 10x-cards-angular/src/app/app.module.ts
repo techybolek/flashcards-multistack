@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -7,15 +8,44 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
+// Import all components
+import { LayoutComponent } from './shared/components/layout/layout.component';
+import { HomeComponent } from './features/home/home.component';
+import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { GenerateComponent } from './features/generate/generate.component';
+import { LoginComponent } from './features/auth/login/login.component';
+import { RegisterComponent } from './features/auth/register/register.component';
+import { RecoverComponent } from './features/auth/recover/recover.component';
+import { GenerationDetailComponent } from './features/generations/generation-detail/generation-detail.component';
+import { ButtonComponent } from './shared/components/button/button.component';
+import { CardComponent } from './shared/components/card/card.component';
+import { InputComponent } from './shared/components/input/input.component';
+import { LabelComponent } from './shared/components/label/label.component';
+import { GenerationsTableComponent } from './shared/components/generations-table/generations-table.component';
+
 @NgModule({
   declarations: [
     AppComponent
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     AppRoutingModule,
     HttpClientModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    LayoutComponent,
+    HomeComponent,
+    DashboardComponent,
+    GenerateComponent,
+    LoginComponent,
+    RegisterComponent,
+    RecoverComponent,
+    GenerationDetailComponent,
+    ButtonComponent,
+    CardComponent,
+    InputComponent,
+    LabelComponent,
+    GenerationsTableComponent
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
