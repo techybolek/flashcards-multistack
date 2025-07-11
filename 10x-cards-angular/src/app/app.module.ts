@@ -21,7 +21,6 @@ import { ButtonComponent } from './shared/components/button/button.component';
 import { CardComponent } from './shared/components/card/card.component';
 import { InputComponent } from './shared/components/input/input.component';
 import { LabelComponent } from './shared/components/label/label.component';
-import { GenerationsTableComponent } from './shared/components/generations-table/generations-table.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +44,6 @@ import { GenerationsTableComponent } from './shared/components/generations-table
     CardComponent,
     InputComponent,
     LabelComponent,
-    GenerationsTableComponent
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }

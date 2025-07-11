@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { ApiService, Generation } from '../../core/services/api.service';
+import { ApiService, Generation } from '../../../core/services/api.service';
 import { ButtonComponent } from '../button/button.component';
 import { BadgeComponent } from '../badge/badge.component';
 import { 
@@ -46,7 +46,7 @@ export class GenerationsTableComponent implements OnInit {
   loadGenerations(): void {
     this.loading = true;
     this.apiService.getGenerations().subscribe({
-      next: (data) => {
+      next: (data: any) => {
         console.log('API response for generations:', data);
         
         // Handle different possible response formats
@@ -62,7 +62,7 @@ export class GenerationsTableComponent implements OnInit {
           this.error.emit(`Unexpected response format: ${typeof data}`);
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error loading generations:', err);
         const errorMessage = err.message || 'Failed to load generations';
         this.error.emit(errorMessage);
@@ -84,7 +84,7 @@ export class GenerationsTableComponent implements OnInit {
       next: () => {
         this.generations = this.generations.filter(g => g.id !== id);
       },
-      error: (err) => {
+      error: (err: any) => {
         const errorMessage = err.message || 'Failed to delete generation';
         this.error.emit(errorMessage);
       },

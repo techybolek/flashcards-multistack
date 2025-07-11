@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, switchMap } from 'rxjs';
-import { ApiService } from '../../../core/services/api.service';
-import { Generation } from '../../../shared/components/generations-table/generations-table.component';
+import { ApiService, GenerationDetail } from '../../../core/services/api.service';
 import { CommonModule } from '@angular/common';
 import { CardComponent, CardHeaderComponent, CardTitleComponent, CardContentComponent } from '../../../shared/components/card/card.component';
 
@@ -11,10 +10,6 @@ export interface Flashcard {
   id: string;
   question: string;
   answer: string;
-}
-
-export interface GenerationDetail extends Generation {
-  flashcards: Flashcard[];
 }
 
 

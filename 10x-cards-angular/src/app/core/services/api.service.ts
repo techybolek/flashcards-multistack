@@ -22,6 +22,7 @@ export interface Generation {
 export interface GenerationDetail {
   id: number;
   generation_name: string;
+  topic: string;
   created_at: string;
   updated_at: string;
   user_id: string;
@@ -46,8 +47,8 @@ export class ApiService {
     return this.http.get<any>(`${this.apiUrl}/api/generations`);
   }
 
-  getGeneration(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/api/generations/${id}`);
+  getGeneration(id: string | number): Observable<GenerationDetail> {
+    return this.http.get<GenerationDetail>(`${this.apiUrl}/api/generations/${id}`);
   }
 
   deleteGeneration(id: number): Observable<void> {
