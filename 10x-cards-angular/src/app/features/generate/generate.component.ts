@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-generate',
-  standalone: false,
+  standalone: true,
   templateUrl: './generate.component.html',
   styleUrl: './generate.component.scss'
 })
