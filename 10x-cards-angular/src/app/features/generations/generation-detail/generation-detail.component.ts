@@ -38,7 +38,7 @@ export class GenerationDetailComponent implements OnInit {
   isAddingCard = false;
   savingIds = new Set<number>();
   editingFlashcardId: number | null = null;
-  editFormValues: { front: string; back: string; source: 'manual' | 'ai-full' | 'ai-edited' } = { front: '', back: '', source: 'manual' };
+  editFormValues: { front: string; back: string } = { front: '', back: '' };
   isSavingEdit = false;
 
   constructor(
@@ -108,8 +108,7 @@ export class GenerationDetailComponent implements OnInit {
     this.editingFlashcardId = flashcard.id;
     this.editFormValues = {
       front: flashcard.front,
-      back: flashcard.back,
-      source: flashcard.source || 'manual'
+      back: flashcard.back
     };
     this.error = null;
   }
@@ -118,7 +117,12 @@ export class GenerationDetailComponent implements OnInit {
   saveEditFlashcard(flashcard: FlashcardDTO) {
     this.isSavingEdit = true;
     this.savingIds.add(flashcard.id);
-    this.apiService.updateFlashcard(flashcard.id, this.editFormValues).pipe(
+    const updateCommand = {
+      front: this.editFormValues.front,
+      back: this.editFormValues.back,
+      source: flashcard.source // keep the original source
+    };
+    this.apiService.updateFlashcard(flashcard.id, updateCommand).pipe(
       finalize(() => {
         this.savingIds.delete(flashcard.id);
         this.isSavingEdit = false;
@@ -137,7 +141,7 @@ export class GenerationDetailComponent implements OnInit {
   // Called when user clicks Cancel in edit mode
   cancelEditFlashcard() {
     this.editingFlashcardId = null;
-    this.editFormValues = { front: '', back: '', source: 'manual' };
+    this.editFormValues = { front: '', back: '' };
     this.error = null;
   }
 

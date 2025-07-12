@@ -54,16 +54,6 @@
           <app-card-content>
             <input class="input input-bordered w-full" [(ngModel)]="editFormValues.back" placeholder="Back" />
           </app-card-content>
-          <app-card-header>
-            <app-card-title>Source:</app-card-title>
-          </app-card-header>
-          <app-card-content>
-            <select class="select select-bordered w-full" [(ngModel)]="editFormValues.source">
-              <option value="manual">Manual</option>
-              <option value="ai-full">AI Full</option>
-              <option value="ai-edited">AI Edited</option>
-            </select>
-          </app-card-content>
           <div class="flex gap-2 p-2">
             <button class="btn btn-sm btn-success" [disabled]="isSavingEdit" (click)="saveEditFlashcard(flashcard)">Save</button>
             <button class="btn btn-sm btn-secondary" [disabled]="isSavingEdit" (click)="cancelEditFlashcard()">Cancel</button>
