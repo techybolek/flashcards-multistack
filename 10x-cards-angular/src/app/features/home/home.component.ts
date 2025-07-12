@@ -12,5 +12,7 @@ import { ButtonComponent } from '../../shared/components/button/button.component
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
-  constructor(public authService: AuthService) {}
+  constructor(public authService: AuthService) {
+    console.log('HomeComponent constructor');
+  }
 }

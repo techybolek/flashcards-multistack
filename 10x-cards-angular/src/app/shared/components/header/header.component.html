@@ -1,0 +1,17 @@
+<header class="bg-background border-b">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex items-center">
+        <a routerLink="/" class="font-bold text-xl">10x Cards</a>
+      </div>
+      <div class="flex items-center">
+        <ng-container *ngIf="user$ | async as user">
+          <span class="text-muted-foreground mr-4">Welcome, {{ user.email }}</span>
+          <app-button variant="outline" (click)="logout()">
+            Logout
+          </app-button>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</header>
