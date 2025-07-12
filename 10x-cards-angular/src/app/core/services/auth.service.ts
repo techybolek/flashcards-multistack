@@ -9,6 +9,14 @@ import {
   User,
   ApiResponse 
 } from '../types/index';
+import { jwtDecode } from 'jwt-decode';
+
+// Define a type for the JWT payload
+interface JwtPayload {
+  userId: string;
+  email: string;
+  name?: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -33,8 +41,8 @@ export class AuthService {
     const token = localStorage.getItem('authToken');
     if (token) {
       try {
-        // Decode JWT token to get user info (simple decode, in production use a proper JWT library)
-        const payload = JSON.parse(atob(token.split('.')[1]));
+        // Decode JWT token to get user info using jwt-decode
+        const payload = jwtDecode<JwtPayload>(token);
         this._user.next({
           id: payload.userId,
           email: payload.email,
@@ -55,16 +63,13 @@ export class AuthService {
       tap(response => {
         // Store the token
         localStorage.setItem('authToken', response.data.token);
-        
-        // Decode the token to get user info
-        const payload = JSON.parse(atob(response.data.token.split('.')[1]));
-        
+        // Decode the token to get user info using jwt-decode
+        const payload = jwtDecode<JwtPayload>(response.data.token);
         const user: User = {
           id: payload.userId,
           email: payload.email,
           name: payload.name || ''
         };
-        
         this._user.next(user);
         this.isAuthenticated$.next(true);
       })
