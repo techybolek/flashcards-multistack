@@ -7,9 +7,10 @@ import { CardComponent, CardHeaderComponent, CardTitleComponent, CardContentComp
 import { GenerationHeaderComponent } from './generation-header.component';
 import { NewFlashcardFormComponent } from './new-flashcard-form.component';
 import { FlashcardDTO, CreateFlashcardCommand, UpdateFlashcardCommand } from '../../../core/types';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 // TODO: Move to a proper types file
 export interface Flashcard {
@@ -43,7 +44,8 @@ export class GenerationDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -153,5 +155,9 @@ export class GenerationDetailComponent implements OnInit {
       next: () => this.loadGeneration(),
       error: () => { this.error = 'Failed to delete flashcard.'; }
     });
+  }
+
+  goBack() {
+    this.router.navigate(['/dashboard']);
   }
 }

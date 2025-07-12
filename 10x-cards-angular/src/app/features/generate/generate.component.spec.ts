@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { GenerateComponent } from './generate.component';
 
 describe('GenerateComponent', () => {
@@ -8,7 +9,7 @@ describe('GenerateComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [GenerateComponent]
+      imports: [GenerateComponent, HttpClientTestingModule, RouterTestingModule]
     })
     .compileComponents();
 

@@ -2,11 +2,8 @@
   <div class="flex justify-between items-center mb-8">
     <div>
       <h1 class="text-3xl font-bold">Dashboard</h1>
-      <p class="text-muted-foreground">Welcome back, {{ user?.email }}</p>
+      <p class="text-muted-foreground">Here are your latest content generations.</p>
     </div>
-    <app-button variant="outline" (click)="handleLogout()">
-      Logout
-    </app-button>
   </div>
 
   <div *ngIf="error" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">

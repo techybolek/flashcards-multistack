@@ -24,21 +24,6 @@ export class DashboardComponent implements OnInit {
     // Component initialization
   }
 
-  get user() {
-    return this.authService.user;
-  }
-
-  handleLogout(): void {
-    this.authService.logout().subscribe({
-      next: () => {
-        this.router.navigate(['/auth/login']);
-      },
-      error: (error) => {
-        console.error('Logout failed:', error);
-      }
-    });
-  }
-
   handleError(errorMessage: string): void {
     this.error = errorMessage;
   }
