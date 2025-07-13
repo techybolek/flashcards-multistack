@@ -7,12 +7,21 @@ import { LabelComponent } from '../../../shared/components/label/label.component
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { RecoverPasswordCommand } from '../../../core/types/index';
+import { CardComponent } from '../../../shared/components/card/card.component';
 
 @Component({
   selector: 'app-recover',
   templateUrl: './recover.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, LabelComponent, InputComponent, ButtonComponent]
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    RouterModule, 
+    LabelComponent, 
+    InputComponent, 
+    ButtonComponent,
+    CardComponent
+  ]
 })
 export class RecoverComponent {
   recoverForm: FormGroup;

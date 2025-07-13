@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { GenerationsTableComponent } from '../../shared/components/generations-table/generations-table.component';
@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   standalone: true,
-  imports: [CommonModule, ButtonComponent, GenerationsTableComponent]
+  imports: [CommonModule, RouterModule, ButtonComponent, GenerationsTableComponent]
 })
 export class DashboardComponent implements OnInit {
   error: string | null = null;

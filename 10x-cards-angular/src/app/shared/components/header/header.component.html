@@ -1,17 +1,25 @@
-<header class="bg-background border-b">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">
-      <div class="flex items-center">
-        <a routerLink="/" class="font-bold text-xl">10x Cards</a>
-      </div>
-      <div class="flex items-center">
-        <ng-container *ngIf="user$ | async as user">
-          <span class="text-muted-foreground mr-4">Welcome, {{ user.email }}</span>
-          <app-button variant="outline" (click)="logout()">
+<header class="sticky top-0 z-40 w-full border-b bg-background">
+  <div class="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
+    <a routerLink="/" class="font-bold text-xl flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
+        <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3"/>
+      </svg>
+      10x Cards
+    </a>
+    <div class="flex flex-1 items-center justify-end space-x-4">
+      <nav class="flex items-center space-x-1">
+        <ng-container *ngIf="user$ | async as user; else loggedOut">
+          <span class="text-muted-foreground mr-4 hidden sm:inline-block">Welcome, {{ user.name }}</span>
+          <app-button variant="secondary" routerLink="/dashboard">Dashboard</app-button>
+          <app-button variant="ghost" (click)="logout()">
             Logout
           </app-button>
         </ng-container>
-      </div>
+        <ng-template #loggedOut>
+          <app-button variant="ghost" routerLink="/auth/login">Login</app-button>
+          <app-button variant="default" routerLink="/auth/register">Register</app-button>
+        </ng-template>
+      </nav>
     </div>
   </div>
 </header>

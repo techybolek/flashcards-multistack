@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { ApiService } from '../../core/services/api.service';
@@ -8,6 +8,7 @@ import { ButtonComponent } from '../../shared/components/button/button.component
 import { LabelComponent } from '../../shared/components/label/label.component';
 import { TextareaComponent } from '../../shared/components/textarea/textarea.component';
 import { GenerateFlashcardsCommand, GenerationResultDTO } from '../../core/types/index';
+import { CardComponent, CardContentComponent, CardFooterComponent, CardHeaderComponent, CardTitleComponent } from '../../shared/components/card/card.component';
 
 interface FlashcardProposal {
   front: string;
@@ -22,9 +23,15 @@ interface FlashcardProposal {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     ButtonComponent,
     LabelComponent,
-    TextareaComponent
+    TextareaComponent,
+    CardComponent,
+    CardHeaderComponent,
+    CardContentComponent,
+    CardFooterComponent,
+    CardTitleComponent
   ],
   templateUrl: './generate.component.html',
   styleUrl: './generate.component.scss'
@@ -55,6 +62,10 @@ export class GenerateComponent {
 
   get textValue() {
     return this.text?.value || '';
+  }
+
+  get approvedCount() {
+    return this.proposals.filter(p => p.approved).length;
   }
 
   handleLoadSample(): void {
