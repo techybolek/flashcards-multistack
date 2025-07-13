@@ -7,12 +7,21 @@ import { LabelComponent } from '../../../shared/components/label/label.component
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { RegisterUserCommand } from '../../../core/types/index';
+import { CardComponent } from '../../../shared/components/card/card.component';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, LabelComponent, InputComponent, ButtonComponent]
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    RouterModule, 
+    LabelComponent, 
+    InputComponent, 
+    ButtonComponent,
+    CardComponent
+  ]
 })
 export class RegisterComponent {
   registerForm: FormGroup;
@@ -25,9 +34,9 @@ export class RegisterComponent {
     private router: Router
   ) {
     this.registerForm = this.fb.group({
+      name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required]]
     });
   }
 
@@ -55,15 +64,15 @@ export class RegisterComponent {
     });
   }
 
+  get name() {
+    return this.registerForm.get('name');
+  }
+
   get email() {
     return this.registerForm.get('email');
   }
 
   get password() {
     return this.registerForm.get('password');
-  }
-
-  get confirmPassword() {
-    return this.registerForm.get('confirmPassword');
   }
 }

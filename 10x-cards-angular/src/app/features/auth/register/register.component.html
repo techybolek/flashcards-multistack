@@ -1,75 +1,73 @@
-<div class="flex items-center justify-center min-h-[60vh]">
-  <div class="w-full max-w-md space-y-6">
-    <div class="text-center">
-      <h1 class="text-2xl font-bold">Create an account</h1>
-      <p class="text-muted-foreground">Enter your details to create your account</p>
-    </div>
-    
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
-      <div class="space-y-2">
-        <app-label for="email">Email</app-label>
-        <app-input
-          id="email"
-          type="email"
-          placeholder="Enter your email"
-          formControlName="email"
-          class="w-full"
-        ></app-input>
-        <p *ngIf="email?.errors?.['required'] && email?.touched" class="text-sm text-destructive">
-          Email is required
-        </p>
-        <p *ngIf="email?.errors?.['email'] && email?.touched" class="text-sm text-destructive">
-          Invalid email address
-        </p>
+<div class="container flex items-center justify-center py-12">
+  <div class="w-full max-w-md">
+    <app-card class="p-6">
+      <div class="text-center mb-6">
+        <h1 class="text-2xl font-bold">Create an account</h1>
+        <p class="text-muted-foreground">Enter your details to create your account</p>
       </div>
       
-      <div class="space-y-2">
-        <app-label for="password">Password</app-label>
-        <app-input
-          id="password"
-          type="password"
-          placeholder="Enter your password"
-          formControlName="password"
-          class="w-full"
-        ></app-input>
-        <p *ngIf="password?.errors?.['required'] && password?.touched" class="text-sm text-destructive">
-          Password is required
-        </p>
-        <p *ngIf="password?.errors?.['minlength'] && password?.touched" class="text-sm text-destructive">
-          Password must be at least 6 characters
-        </p>
-      </div>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4">
+        <div class="space-y-2">
+          <app-label for="name">Name</app-label>
+          <app-input
+            id="name"
+            type="text"
+            placeholder="Enter your name"
+            formControlName="name"
+            class="w-full"
+          ></app-input>
+          <p *ngIf="name?.errors?.['required'] && name?.touched" class="text-sm text-destructive">
+            Name is required
+          </p>
+        </div>
 
-      <div class="space-y-2">
-        <app-label for="confirmPassword">Confirm Password</app-label>
-        <app-input
-          id="confirmPassword"
-          type="password"
-          placeholder="Confirm your password"
-          formControlName="confirmPassword"
-          class="w-full"
-        ></app-input>
-        <p *ngIf="confirmPassword?.errors?.['required'] && confirmPassword?.touched" class="text-sm text-destructive">
-          Please confirm your password
-        </p>
-        <p *ngIf="errorMessage" class="text-sm text-destructive">{{ errorMessage }}</p>
-      </div>
+        <div class="space-y-2">
+          <app-label for="email">Email</app-label>
+          <app-input
+            id="email"
+            type="email"
+            placeholder="Enter your email"
+            formControlName="email"
+            class="w-full"
+          ></app-input>
+          <p *ngIf="email?.errors?.['required'] && email?.touched" class="text-sm text-destructive">
+            Email is required
+          </p>
+          <p *ngIf="email?.errors?.['email'] && email?.touched" class="text-sm text-destructive">
+            Invalid email address
+          </p>
+        </div>
+        
+        <div class="space-y-2">
+          <app-label for="password">Password</app-label>
+          <app-input
+            id="password"
+            type="password"
+            placeholder="Enter your password"
+            formControlName="password"
+            class="w-full"
+          ></app-input>
+          <p *ngIf="password?.errors?.['required'] && password?.touched" class="text-sm text-destructive">
+            Password is required
+          </p>
+          <p *ngIf="password?.errors?.['minlength'] && password?.touched" class="text-sm text-destructive">
+            Password must be at least 6 characters
+          </p>
+        </div>
 
-      <div class="flex items-center justify-center">
-        <a routerLink="/auth/login" class="text-sm text-primary hover:underline">
-          Already have an account? Sign in
+        <p *ngIf="errorMessage" class="text-sm text-destructive text-center">{{ errorMessage }}</p>
+
+        <app-button type="submit" class="w-full" [disabled]="isLoading">
+          {{ isLoading ? 'Creating account...' : 'Create account' }}
+        </app-button>
+      </form>
+      
+      <div class="mt-6 text-center text-sm">
+        Already have an account?
+        <a routerLink="/auth/login" class="text-primary hover:underline">
+          Sign in
         </a>
       </div>
-
-      <app-button type="submit" class="w-full" [disabled]="isLoading">
-        {{ isLoading ? 'Creating account...' : 'Create account' }}
-      </app-button>
-    </form>
-    
-    <div class="text-center">
-      <a routerLink="/" class="text-sm text-muted-foreground hover:text-primary">
-        ← Back to home
-      </a>
-    </div>
+    </app-card>
   </div>
 </div>

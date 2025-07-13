@@ -23,7 +23,7 @@ export class CardHeaderComponent {
 
 @Component({
   selector: 'app-card-title',
-  template: '<h3 class="text-2xl font-semibold leading-none tracking-tight" [ngClass]="class"><ng-content></ng-content></h3>',
+  template: '<h3 class="text-xl font-semibold leading-none tracking-tight" [ngClass]="class"><ng-content></ng-content></h3>',
   standalone: true,
   imports: [NgClass]
 })
@@ -43,7 +43,7 @@ export class CardDescriptionComponent {
 
 @Component({
   selector: 'app-card-content',
-  template: '<div class="p-6 pt-0" [ngClass]="class"><ng-content></ng-content></div>',
+  template: '<div class="p-6" [ngClass]="class"><ng-content></ng-content></div>',
   standalone: true,
   imports: [NgClass]
 })
@@ -53,7 +53,7 @@ export class CardContentComponent {
 
 @Component({
   selector: 'app-card-footer',
-  template: '<div class="flex items-center p-6 pt-0" [ngClass]="class"><ng-content></ng-content></div>',
+  template: '<div class="flex items-center p-6" [ngClass]="class"><ng-content></ng-content></div>',
   standalone: true,
   imports: [NgClass]
 })

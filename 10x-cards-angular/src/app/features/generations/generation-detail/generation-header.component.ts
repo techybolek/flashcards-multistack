@@ -20,5 +20,6 @@ export class GenerationHeaderComponent {
   @Input() name!: string;
   @Input() flashcardCount!: number;
   @Input() createdAt!: string;
+  @Input() isAdding: boolean = false;
   @Output() onAddClick = new EventEmitter<void>();
 } 

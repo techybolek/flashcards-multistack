@@ -1,73 +1,69 @@
 <div class="space-y-4" *ngIf="!loading">
-  <div class="flex justify-between items-center">
-    <h2 class="text-xl font-semibold">Your Generations</h2>
-    <app-button>
-      <a routerLink="/generate">Generate New Flashcards</a>
-    </app-button>
-  </div>
-  
   <div *ngIf="generations.length === 0" class="text-center py-12">
-    <p class="text-muted-foreground mb-4">
-      You haven't generated any flashcards yet.
-    </p>
-    <app-button>
-      <a routerLink="/generate">Generate Your First Flashcards</a>
-    </app-button>
+    <app-card class="p-8">
+      <h3 class="text-xl font-semibold mb-2">No Generations Found</h3>
+      <p class="text-muted-foreground mb-4">
+        You haven't generated any flashcards yet.
+      </p>
+      <app-button routerLink="/generate">
+        Generate Your First Set
+      </app-button>
+    </app-card>
   </div>
 
-  <div *ngIf="generations.length > 0" class="border rounded-lg overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead>
-        <tr>
-          <th class="px-4 py-2 text-left">Name</th>
-          <th class="px-4 py-2 text-left">Created</th>
-          <th class="px-4 py-2 text-left">Updated</th>
-          <th class="px-4 py-2 text-left">Flashcards</th>
-          <th class="px-4 py-2 text-right">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let generation of generations">
-          <td class="px-4 py-2">
-            <a 
-              [routerLink]="['/generations', generation.id]"
-              class="font-medium hover:underline"
-            >
-              {{ generation.generation_name }}
-            </a>
-          </td>
-          <td class="px-4 py-2 text-muted-foreground">
-            {{ generation.created_at | date: 'mediumDate' }}
-          </td>
-          <td class="px-4 py-2 text-muted-foreground">
-            {{ generation.updated_at | date: 'mediumDate' }}
-          </td>
-          <td class="px-4 py-2">
-            <app-badge variant="secondary">
-              {{ generation.flashcard_count || 0 }} cards
-            </app-badge>
-          </td>
-          <td class="px-4 py-2 text-right">
-            <div class="flex gap-2 justify-end">
-              <app-button variant="outline" size="sm">
-                <a [routerLink]="['/generations', generation.id]">
-                  Manage
-                </a>
-              </app-button>
-              <app-button
-                variant="outline"
-                size="sm"
-                (click)="handleDeleteGeneration(generation.id, generation.generation_name)"
-                [disabled]="deletingId === generation.id"
+  <app-card *ngIf="generations.length > 0">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="border-b">
+          <tr class="text-muted-foreground">
+            <th class="px-4 py-3 font-medium text-left">Name</th>
+            <th class="px-4 py-3 font-medium text-left hidden sm:table-cell">Created</th>
+            <th class="px-4 py-3 font-medium text-left hidden md:table-cell">Updated</th>
+            <th class="px-4 py-3 font-medium text-center">Flashcards</th>
+            <th class="px-4 py-3 font-medium text-right"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let generation of generations" class="border-b">
+            <td class="px-4 py-3">
+              <a 
+                [routerLink]="['/generations', generation.id]"
+                class="font-medium hover:underline"
               >
-                {{ deletingId === generation.id ? 'Deleting...' : 'Delete' }}
-              </app-button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+                {{ generation.generation_name }}
+              </a>
+            </td>
+            <td class="px-4 py-3 text-muted-foreground hidden sm:table-cell">
+              {{ generation.created_at | date: 'mediumDate' }}
+            </td>
+            <td class="px-4 py-3 text-muted-foreground hidden md:table-cell">
+              {{ generation.updated_at | date: 'mediumDate' }}
+            </td>
+            <td class="px-4 py-3 text-center">
+              <app-badge variant="secondary">
+                {{ generation.flashcard_count || 0 }}
+              </app-badge>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <div class="flex gap-2 justify-end">
+                <app-button variant="outline" size="sm" [routerLink]="['/generations', generation.id]">
+                  Manage
+                </app-button>
+                <app-button
+                  variant="destructive"
+                  size="sm"
+                  (click)="handleDeleteGeneration(generation.id, generation.generation_name)"
+                  [disabled]="deletingId === generation.id"
+                >
+                  {{ deletingId === generation.id ? 'Deleting...' : 'Delete' }}
+                </app-button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </app-card>
 </div>
 
 <div *ngIf="loading" class="text-center py-8">
