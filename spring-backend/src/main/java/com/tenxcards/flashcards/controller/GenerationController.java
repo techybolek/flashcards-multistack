@@ -8,6 +8,7 @@ import com.tenxcards.flashcards.entity.User;
 import com.tenxcards.flashcards.repository.FlashcardRepository;
 import com.tenxcards.flashcards.repository.GenerationRepository;
 import com.tenxcards.flashcards.service.OpenAIService;
+import com.tenxcards.flashcards.service.OpenRouterService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,19 +42,31 @@ public class GenerationController {
     @Autowired
     private OpenAIService openAIService;
 
+    @Autowired
+    private OpenRouterService openRouterService;
+
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     @PostMapping
     public ResponseEntity<ApiResponse<GenerationResultDTO>> generateFlashcards(
             @Valid @RequestBody GenerateFlashcardsCommand command,
+            @RequestParam(value = "provider", required = false, defaultValue = "openai") String provider,
             Authentication authentication) {
         try {
             User user = (User) authentication.getPrincipal();
 
             LocalDateTime startTime = LocalDateTime.now();
 
-            // Generate flashcards using AI
-            List<FlashcardProposalDTO> proposals = openAIService.generateFlashcards(command.getText());
+            // Generate flashcards using selected provider
+            List<FlashcardProposalDTO> proposals;
+            String modelUsed;
+            if ("openrouter".equalsIgnoreCase(provider)) {
+                proposals = openRouterService.generateFlashcards(command.getText());
+                modelUsed = openRouterService.getModel();
+            } else {
+                proposals = openAIService.generateFlashcards(command.getText());
+                modelUsed = openAIService.getModel();
+            }
 
             LocalDateTime endTime = LocalDateTime.now();
             Duration duration = Duration.between(startTime, endTime);
@@ -65,7 +78,7 @@ public class GenerationController {
             generation.setGeneratedCount(proposals.size());
             generation.setSourceTextLength(command.getText().length());
             generation.setGenerationDuration(duration);
-            generation.setModel("gpt-4o"); // Hardcoded for now
+            generation.setModel(modelUsed);
             generation.setSourceTextHash(calculateSHA256(command.getText()));
 
             generation = generationRepository.save(generation);
@@ -81,7 +94,6 @@ public class GenerationController {
             stats.setGeneratedCount(proposals.size());
             stats.setGenerationDuration(formatDurationToISO8601(duration));
             result.setStats(stats);
-
 
             return ResponseEntity.ok(ApiResponse.success(result));
 

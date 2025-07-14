@@ -16,6 +16,9 @@ class OpenAIServiceTest {
     @Autowired
     private OpenAIService service;
 
+    @Autowired
+    private OpenRouterService openRouterService;
+
     @BeforeAll
     static void setup() {
         // Ensure the property is set before the Spring context loads
@@ -61,6 +64,23 @@ class OpenAIServiceTest {
     void testGenerateFlashcardsWithRealApiCall() {
         String sampleText = "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize foods from carbon dioxide and water.";
         List<FlashcardProposalDTO> result = service.generateFlashcards(sampleText);
+
+
+        for (FlashcardProposalDTO card : result) {
+            System.out.println("Front: " + card.getFront());
+            System.out.println("Back: " + card.getBack());
+            System.out.println("---");
+        }
+        assertNotNull(result, "Result should not be null");
+        assertFalse(result.isEmpty(), "Result should contain at least one flashcard");
+        assertNotNull(result.get(0).getFront(), "Flashcard front should not be null");
+        assertNotNull(result.get(0).getBack(), "Flashcard back should not be null");
+    }
+
+    @Test
+    void testGenerateFlashcardsWithOpenRouter() {
+        String sampleText = "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize foods from carbon dioxide and water.";
+        List<FlashcardProposalDTO> result = openRouterService.generateFlashcards(sampleText);
 
 
         for (FlashcardProposalDTO card : result) {
