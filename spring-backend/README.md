@@ -16,25 +16,11 @@ This is a Spring Boot implementation of the backend for the 10x Cards flashcard 
 
 - Java 17 or higher
 - Maven 3.6+
-- OpenAI API key (optional - uses mock data if not provided)
+- OpenAI API key or OPENROUTER api key
 
 ## Configuration
 
 ### Environment Variables
-
-Set the following environment variables:
-
-```bash
-# Optional: OpenAI API key for AI flashcard generation
-export OPENAI_API_KEY=your-openai-api-key
-
-# Optional: JWT secret (uses default if not provided)
-export JWT_SECRET=your-jwt-secret-key
-
-# Production database (optional)
-export DB_USERNAME=your-db-username
-export DB_PASSWORD=your-db-password
-```
 
 ### Application Profiles
 
