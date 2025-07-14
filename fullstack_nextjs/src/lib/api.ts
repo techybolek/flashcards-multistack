@@ -20,9 +20,19 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
 
+    // --- Add Authorization header if token exists in localStorage (browser only) ---
+    let authHeader: Record<string, string> = {};
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        authHeader['Authorization'] = `Bearer ${token}`;
+      }
+    }
+
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
+        ...authHeader, // <-- Add Authorization header if present
         ...options.headers,
       },
       ...options,

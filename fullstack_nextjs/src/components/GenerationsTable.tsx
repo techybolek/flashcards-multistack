@@ -118,7 +118,6 @@ export default function GenerationsTable({ onError }: GenerationsTableProps) {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Created</TableHead>
-              <TableHead>Updated</TableHead>
               <TableHead>Flashcards</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -136,9 +135,6 @@ export default function GenerationsTable({ onError }: GenerationsTableProps) {
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {new Date(generation.created_at).toLocaleDateString()}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {new Date(generation.updated_at).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
                   <Badge variant="secondary">

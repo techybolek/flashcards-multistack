@@ -79,6 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log('AuthContext - Login response:', response);
     if (response) {
       setIsAuthenticated(true);
+      //@ts-ignore
       setUser(response.user);
       console.log('AuthContext - User set as authenticated');
       
