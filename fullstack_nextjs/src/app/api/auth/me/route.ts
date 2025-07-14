@@ -5,7 +5,9 @@ import type { User } from '@/types';
 
 export async function GET() {
   try {
-    const token = cookies().get('token')?.value;
+    console.log('ME route');
+    const cookieStore = await cookies();
+    const token = cookieStore.get('token')?.value;
 
     if (!token) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });

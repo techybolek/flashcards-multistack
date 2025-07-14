@@ -36,13 +36,15 @@ export async function POST(request: Request) {
       process.env.JWT_SECRET!
     );
 
-    cookies().set('token', token, {
+    const cookieStore = await cookies();
+    cookieStore.set('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV !== 'development',
       sameSite: 'strict',
       path: '/',
     });
 
+    console.log('Login succeeded! Redirecting, supposedly...');
     return NextResponse.json({
       success: true,
       data: {
@@ -55,6 +57,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
+      // @ts-ignore
       return NextResponse.json({ success: false, error: error.errors[0].message }, { status: 400 });
     }
     console.error('Login error:', error);
