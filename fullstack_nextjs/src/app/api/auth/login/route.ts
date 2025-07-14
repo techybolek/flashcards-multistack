@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { supabase } from '@/lib/supabase';
 import jwt from 'jsonwebtoken';
-import { cookies } from 'next/headers';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email format'),
@@ -36,25 +35,43 @@ export async function POST(request: Request) {
       process.env.JWT_SECRET!
     );
 
-    const cookieStore = await cookies();
-    cookieStore.set('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV !== 'development',
-      sameSite: 'strict',
-      path: '/',
-    });
-
-    console.log('Login succeeded! Redirecting, supposedly...');
-    return NextResponse.json({
-      success: true,
-      data: {
-        user: {
-          id: data.user.id,
-          email: data.user.email,
-        },
-        redirectTo: '/dashboard',
+    const responseData = {
+      user: {
+        id: data.user.id,
+        email: data.user.email,
       },
+      status: 'success',
+      redirectTo: '/dashboard',
+      token: token, // Include token in response for localStorage fallback
+    };
+    
+    console.log('API Route - Returning response:', responseData);
+    console.log('Setting cookie with token:', token.substring(0, 20) + '...');
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('Cookie will be secure:', process.env.NODE_ENV !== 'development');
+    
+    // Create response with cookie using Set-Cookie header
+    const response = NextResponse.json(responseData);
+    
+    // Try setting cookie manually with header
+    const cookieString = `token=${token}; Path=/; Max-Age=86400; SameSite=lax`;
+    console.log('Setting cookie manually:', cookieString);
+    response.headers.set('Set-Cookie', cookieString);
+    
+    // Also try the Next.js way
+    response.cookies.set('token', token, {
+      httpOnly: false, // Temporarily disable HttpOnly for debugging
+      secure: false, // Force to false for development
+      sameSite: 'lax', // Change from 'strict' to 'lax' for better compatibility
+      path: '/',
+      maxAge: 60 * 60 * 24, // 24 hours
     });
+    
+    console.log('Cookie set with Next.js response.cookies.set');
+    
+    console.log('Cookie should be set now');
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+    return response;
   } catch (error) {
     if (error instanceof z.ZodError) {
       // @ts-ignore

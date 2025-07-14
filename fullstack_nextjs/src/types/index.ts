@@ -24,11 +24,12 @@ export type RecoverPasswordCommand = {
 
 // DTO for user login response
 export type LoginUserResponseDTO = {
-  token: string;
   user: {
     id: string; // UUID representing the user's ID
     email: string;
   };
+  status: string;
+  redirectTo?: string;
 };
 
 // Represents a flashcard as returned by the API, based on the flashcards table in the database.

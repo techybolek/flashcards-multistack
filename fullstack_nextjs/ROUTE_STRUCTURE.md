@@ -4,8 +4,8 @@
 
 - `/`  
   Main entry point, handled by `src/app/page.tsx`.
-- `/generations`  
-  Likely a resource or feature page, with dynamic subroutes such as `/generations/[id]` for individual generation details.
+- `/generations/:id`  
+  Feature page, with dynamic subroutes such as `/generations/[id]` for individual generation details.
 - `/generate`  
   Possibly a page for creating or generating new resources.
 - `/auth`  
@@ -23,7 +23,7 @@
 
 2. **Main Application**:  
    After authentication, users are likely redirected to `/dashboard` or the main `/` page.  
-   Users can view or manage "generations" via `/generations` and `/generations/[id]`.  
+   Users can view or manage "generations" via `/generations/[id]`.  
    Users can create new items or resources via `/generate`.
 
 3. **API**:  

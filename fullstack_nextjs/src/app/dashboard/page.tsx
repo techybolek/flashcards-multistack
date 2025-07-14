@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import GenerationsTable from '@/components/GenerationsTable';
@@ -8,6 +8,15 @@ import GenerationsTable from '@/components/GenerationsTable';
 export default function DashboardPage() {
   const { user, logout } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
+
+  useEffect(() => {
+    // Check for debug information from localStorage
+    const debugData = localStorage.getItem('debug_cookie_check');
+    if (debugData) {
+      setDebugInfo(JSON.parse(debugData));
+    }
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -43,6 +52,29 @@ export default function DashboardPage() {
             className="mt-2"
           >
             Dismiss
+          </Button>
+        </div>
+      )}
+
+      {debugInfo && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
+          <h3 className="font-semibold text-blue-800 mb-2">Debug Information</h3>
+          <p className="text-sm text-blue-700">
+            <strong>Timestamp:</strong> {debugInfo.timestamp}
+          </p>
+          <p className="text-sm text-blue-700">
+            <strong>Cookie Found:</strong> {debugInfo.hasCookie ? 'Yes' : 'No'}
+          </p>
+          <p className="text-sm text-blue-700">
+            <strong>Document Cookie:</strong> {debugInfo.documentCookie}
+          </p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setDebugInfo(null)}
+            className="mt-2"
+          >
+            Clear Debug
           </Button>
         </div>
       )}

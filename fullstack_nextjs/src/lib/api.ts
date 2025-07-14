@@ -45,12 +45,30 @@ class ApiClient {
 
   // Auth endpoints
   async login(command: LoginUserCommand): Promise<LoginUserResponseDTO> {
-    const response = await this.request<LoginUserResponseDTO>('/api/auth/login', {
+    const url = `${API_BASE_URL}/api/auth/login`;
+    const config: RequestInit = {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(command),
-    });
-    // Token is handled by http-only cookie, no need to store in local storage
-    return response.data!;
+    };
+
+    try {
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      }
+
+      console.log('API Client - Received response:', data);
+      // Token is handled by http-only cookie, no need to store in local storage
+      return data;
+    } catch (error) {
+      console.error('Login API request failed:', error);
+      throw error;
+    }
   }
 
   async register(command: RegisterUserCommand): Promise<any> {

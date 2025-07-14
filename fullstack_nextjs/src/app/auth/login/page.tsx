@@ -32,13 +32,60 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const result = await login(data);
+      console.log('Login Page - Final result:', result);
+      console.log('Login Page - About to redirect to:', result.redirectTo || '/dashboard');
       
       toast({
         title: "Success",
         description: "Logged in successfully",
       });
       
-      router.push(result.redirectTo || '/dashboard');
+      // Store token in localStorage as fallback
+      if (result.token) {
+        localStorage.setItem('auth_token', result.token);
+        console.log('Login Page - Token stored in localStorage');
+      }
+      
+      // Check if cookie is accessible via document.cookie (since httpOnly is false)
+      setTimeout(() => {
+        console.log('Login Page - Checking document.cookie:', document.cookie);
+        const hasCookie = document.cookie.includes('token=');
+        console.log('Login Page - Cookie found in document.cookie:', hasCookie);
+        
+        // Store the result in localStorage for persistence
+        localStorage.setItem('debug_cookie_check', JSON.stringify({
+          timestamp: new Date().toISOString(),
+          documentCookie: document.cookie,
+          hasCookie: hasCookie,
+          tokenInResponse: !!result.token
+        }));
+        
+        console.log('Login Page - Calling router.push...');
+        const redirectPath = result.redirectTo || '/dashboard';
+        
+        // Use Next.js router instead of window.location.href to avoid full page reload
+        console.log('Login Page - Using router.push for redirect to:', redirectPath);
+        
+        try {
+          router.push(redirectPath);
+          console.log('Login Page - router.push called successfully');
+          
+          // Add a timeout to check if navigation actually happened
+          setTimeout(() => {
+            console.log('Login Page - Current pathname after redirect:', window.location.pathname);
+            if (window.location.pathname === '/auth/login') {
+              console.log('Login Page - Still on login page, router.push may have failed');
+              console.log('Login Page - Trying window.location.href as fallback');
+              window.location.href = redirectPath;
+            }
+          }, 1000);
+        } catch (error) {
+          console.error('Login Page - router.push failed:', error);
+          console.log('Login Page - Falling back to window.location.href');
+          window.location.href = redirectPath;
+        }
+      }, 500); // Increased delay to 500ms
+      
     } catch (error) {
       setError('password', { 
         type: 'server', 

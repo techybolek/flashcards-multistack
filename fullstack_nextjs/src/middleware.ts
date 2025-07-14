@@ -5,13 +5,26 @@ import jwt from 'jsonwebtoken';
 const protectedRoutes = ['/dashboard', '/generate', '/generations'];
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('token')?.value;
+  let token = request.cookies.get('token')?.value;
+  
+  // Fallback to Authorization header if cookie is not available
+  if (!token) {
+    const authHeader = request.headers.get('authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  }
+  
   const { pathname } = request.nextUrl;
 
-  // If the user is trying to access a protected route without a token, redirect to login
-  if (protectedRoutes.some(path => pathname.startsWith(path)) && !token) {
-    return NextResponse.redirect(new URL('/auth/login', request.url));
-  }
+  console.log('Middleware - pathname:', pathname);
+  console.log('Middleware - token:', token ? token.substring(0, 20) + '...' : 'NO TOKEN');
+
+  // Temporarily disable middleware protection - let AuthContext handle it
+  // if (protectedRoutes.some(path => pathname.startsWith(path)) && !token) {
+  //   console.log('Middleware - No token for protected route, redirecting to login');
+  //   return NextResponse.redirect(new URL('/auth/login', request.url));
+  // }
 
   if (token) {
     try {
