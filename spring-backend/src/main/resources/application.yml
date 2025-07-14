@@ -1,0 +1,104 @@
+server:
+  port: 3001
+
+spring:
+  application:
+    name: flashcards-backend
+  
+  datasource:
+    #Session pooler connection for cloud database
+    url: jdbc:postgresql://aws-0-us-east-2.pooler.supabase.com:5432/postgres?options=-c%20statement_timeout%3D0&pgbouncer=true
+    username: ${SUPABASE_USER_NAME:your-supabase-user-name}
+    password: ${SUPABASE_USER_PASSWORD:your-supabase-password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 20000
+      minimum-idle: 2
+      maximum-pool-size: 20
+      idle-timeout: 300000
+      max-lifetime: 1200000
+    
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:mySecretKey1234567890123456789012345678901234567890}
+  expiration: 86400000 # 24 hours in milliseconds
+
+# Supabase Configuration for calling Supabase APIs for authentication, registration, etc.
+supabase:
+  url: ${SUPABASE_URL:your-supabase-url}
+  anon-key: ${SUPABASE_SERVICE_KEY:your-supabase-service-key}
+
+# Frontend Configuration
+# 5173 for React, 4200 for Angular
+frontend:
+  url: ${FRONTEND_URL:http://localhost:5173}
+
+aiprovider: openrouter
+
+openai:
+  api-key: ${OPENAI_API_KEY:your-openai-api-key}
+  model: gpt-4o-mini
+    
+openrouter:
+  api-key: ${OPENROUTER_API_KEY:your-openrouter-api-key}
+  model: gpt-4o-mini
+
+cors:
+  allowed-origins: http://localhost:5173,http://localhost:4200
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: "*"
+  allow-credentials: true
+
+logging:
+  level:
+    com.tenxcards.flashcards: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
+    org.springframework.web: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+      
+  datasource:
+    #url: jdbc:postgresql://aws-0-us-east-2.pooler.supabase.com:6543/postgres
+    url: jdbc:postgresql://aws-0-us-east-2.pooler.supabase.com:5432/postgres?options=-c%20statement_timeout%3D0&pgbouncer=true
+    username: postgres.rjxgyerudnnhwnovralo
+    password: ydTPvfPjk863EZeZ
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 20000
+      minimum-idle: 2
+      maximum-pool-size: 10
+      idle-timeout: 300000
+      max-lifetime: 1200000
+    
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+logging:
+  level:
+    com.tenxcards.flashcards: INFO
+    org.springframework.security: WARN

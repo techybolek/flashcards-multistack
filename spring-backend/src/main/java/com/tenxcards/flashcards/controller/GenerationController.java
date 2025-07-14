@@ -11,6 +11,7 @@ import com.tenxcards.flashcards.service.OpenAIService;
 import com.tenxcards.flashcards.service.OpenRouterService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -45,12 +46,18 @@ public class GenerationController {
     @Autowired
     private OpenRouterService openRouterService;
 
+    @Value("${aiprovider:openai}")
+    private String aiProvider;
+
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
+    /**
+     * Generates flashcards using the provider specified by the application parameter 'aiprovider'.
+     * The provider is no longer set via a request parameter.
+     */
     @PostMapping
     public ResponseEntity<ApiResponse<GenerationResultDTO>> generateFlashcards(
             @Valid @RequestBody GenerateFlashcardsCommand command,
-            @RequestParam(value = "provider", required = false, defaultValue = "openai") String provider,
             Authentication authentication) {
         try {
             User user = (User) authentication.getPrincipal();
@@ -60,7 +67,7 @@ public class GenerationController {
             // Generate flashcards using selected provider
             List<FlashcardProposalDTO> proposals;
             String modelUsed;
-            if ("openrouter".equalsIgnoreCase(provider)) {
+            if ("openrouter".equalsIgnoreCase(aiProvider)) {
                 proposals = openRouterService.generateFlashcards(command.getText());
                 modelUsed = openRouterService.getModel();
             } else {
