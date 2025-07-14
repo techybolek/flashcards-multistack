@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { use, useState } from 'react';
 import { useGenerationData } from '@/hooks/useGenerationData';
 import { useFlashcardOperations } from '@/hooks/useFlashcardOperations';
 import { GenerationHeader } from '@/components/generation/GenerationHeader';
@@ -8,8 +8,9 @@ import { NewFlashcardForm } from '@/components/generation/NewFlashcardForm';
 import { FlashcardList } from '@/components/generation/FlashcardList';
 import type { CreateFlashcardCommand } from '@/types';
 
-export default function GenerationDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+// In Next.js App Router, params is now a Promise and must be unwrapped with React.use()
+export default function GenerationDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [showAddForm, setShowAddForm] = useState(false);
   const [isAddingCard, setIsAddingCard] = useState(false);
   
