@@ -42,10 +42,10 @@ Curious but not sure where to begin?
 6. Begin generating flashcards
 
 
-## Code Metrics - Astro has extra code
+## Code Metrics
 
 <details>
-<summary>Astro (Fullstack)</summary>
+<summary>Astro (Fullstack - contains extra code)</summary>
 
 ```text
 Language     | Files | Blank | Comment | Code
