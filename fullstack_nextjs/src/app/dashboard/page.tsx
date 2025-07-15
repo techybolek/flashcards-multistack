@@ -8,15 +8,7 @@ import GenerationsTable from '@/components/GenerationsTable';
 export default function DashboardPage() {
   const { user, logout } = useAuth();
   const [error, setError] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
 
-  useEffect(() => {
-    // Check for debug information from localStorage
-    const debugData = localStorage.getItem('debug_cookie_check');
-    if (debugData) {
-      setDebugInfo(JSON.parse(debugData));
-    }
-  }, []);
 
   const handleLogout = async () => {
     try {
@@ -31,50 +23,31 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
+    <div className="max-w-6xl mx-auto bg-gray-50 shadow-lg rounded-2xl p-8 mt-10 transition-all">
+      <div className="flex justify-between items-center mb-8 border-b border-gray-200 pb-6">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back, {user?.email}</p>
+          <h1 className="text-4xl font-extrabold tracking-tight">Dashboard</h1>
+          <p className="text-gray-600 mt-1 text-lg">Welcome back, {user?.email}</p>
         </div>
-        <Button onClick={handleLogout} variant="outline">
+        <Button 
+          onClick={handleLogout} 
+          variant="outline" 
+          className="transition-colors hover:bg-blue-100 hover:text-blue-700"
+        >
           Logout
         </Button>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-red-700">{error}</p>
+        <div className="mb-6 p-4 bg-red-100 border border-red-300 rounded-lg flex flex-col gap-2 animate-in fade-in">
+          <p className="text-red-700 font-medium">{error}</p>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => setError(null)}
-            className="mt-2"
+            className="self-end mt-2"
           >
             Dismiss
-          </Button>
-        </div>
-      )}
-
-      {debugInfo && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
-          <h3 className="font-semibold text-blue-800 mb-2">Debug Information</h3>
-          <p className="text-sm text-blue-700">
-            <strong>Timestamp:</strong> {debugInfo.timestamp}
-          </p>
-          <p className="text-sm text-blue-700">
-            <strong>Cookie Found:</strong> {debugInfo.hasCookie ? 'Yes' : 'No'}
-          </p>
-          <p className="text-sm text-blue-700">
-            <strong>Document Cookie:</strong> {debugInfo.documentCookie}
-          </p>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setDebugInfo(null)}
-            className="mt-2"
-          >
-            Clear Debug
           </Button>
         </div>
       )}

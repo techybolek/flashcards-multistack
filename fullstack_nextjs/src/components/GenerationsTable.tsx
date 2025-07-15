@@ -106,38 +106,38 @@ export default function GenerationsTable({ onError }: GenerationsTableProps) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Your Generations</h2>
-        <Button asChild>
+        <h2 className="text-2xl font-bold tracking-tight">Your Generations</h2>
+        <Button asChild className="transition-colors hover:bg-blue-100 hover:text-blue-700">
           <Link href="/generate">Generate New Flashcards</Link>
         </Button>
       </div>
       
-      <div className="border rounded-lg">
+      <div className="bg-white shadow-lg rounded-2xl border border-gray-200 overflow-x-auto transition-all">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>Flashcards</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+            <TableRow className="bg-gray-100">
+              <TableHead className="text-lg font-semibold">Name</TableHead>
+              <TableHead className="text-lg font-semibold">Created</TableHead>
+              <TableHead className="text-lg font-semibold">Flashcards</TableHead>
+              <TableHead className="text-right text-lg font-semibold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {(generations || []).map((generation) => (
-              <TableRow key={generation.id}>
+              <TableRow key={generation.id} className="hover:bg-blue-50 transition-colors">
                 <TableCell>
                   <Link 
                     href={`/generations/${generation.id}`}
-                    className="font-medium hover:underline"
+                    className="font-medium hover:underline text-blue-700 transition-colors"
                   >
                     {generation.generation_name}
                   </Link>
                 </TableCell>
-                <TableCell className="text-muted-foreground">
+                <TableCell className="text-gray-500">
                   {new Date(generation.created_at).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
-                  <Badge variant="secondary">
+                  <Badge variant="secondary" className="rounded-full px-3 py-1 text-sm bg-gray-100 text-gray-700">
                     {generation.flashcard_count || 0} cards
                   </Badge>
                 </TableCell>
@@ -147,6 +147,7 @@ export default function GenerationsTable({ onError }: GenerationsTableProps) {
                       variant="outline"
                       size="sm"
                       asChild
+                      className="transition-colors hover:bg-blue-100 hover:text-blue-700"
                     >
                       <Link href={`/generations/${generation.id}`}>
                         Manage
@@ -157,6 +158,7 @@ export default function GenerationsTable({ onError }: GenerationsTableProps) {
                       size="sm"
                       onClick={() => handleDeleteGeneration(generation.id, generation.generation_name)}
                       disabled={deletingId === generation.id}
+                      className="transition-colors hover:bg-red-100 hover:text-red-700"
                     >
                       {deletingId === generation.id ? 'Deleting...' : 'Delete'}
                     </Button>
